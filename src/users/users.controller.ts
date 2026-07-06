@@ -10,14 +10,13 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common';
-
 import { CreateUserDto, UpdatePasswordDto } from './dto';
-import { UserService } from './user.service';
+import { UsersService } from './users.service';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UsersController {
+  constructor(private readonly userService: UsersService) {}
 
   @Get()
   fetchAll() {

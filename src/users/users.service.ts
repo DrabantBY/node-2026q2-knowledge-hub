@@ -9,7 +9,7 @@ import type { CreateUserDto, UpdatePasswordDto } from './dto';
 import { User } from './entities';
 
 @Injectable()
-export class UserService {
+export class UsersService {
   #state: User[] = [];
 
   fetchAll(): User[] {

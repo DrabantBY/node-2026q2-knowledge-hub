@@ -11,23 +11,23 @@ import {
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto, UpdateArticleDto } from './dto';
 
-@Controller('articles')
+@Controller('article')
 export class ArticlesController {
-  constructor(private readonly articlesService: ArticlesService) {}
+  constructor(private readonly articleService: ArticlesService) {}
 
   @Get()
   fetchAll() {
-    return this.articlesService.fetchAll();
+    return this.articleService.fetchAll();
   }
 
   @Get(':id')
   fetchOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.articlesService.fetchOne(id);
+    return this.articleService.fetchOne(id);
   }
 
   @Post()
   insertOne(@Body() dto: CreateArticleDto) {
-    return this.articlesService.insertOne(dto);
+    return this.articleService.insertOne(dto);
   }
 
   @Put(':id')
@@ -35,11 +35,11 @@ export class ArticlesController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateArticleDto,
   ) {
-    return this.articlesService.updateOne(id, dto);
+    return this.articleService.updateOne(id, dto);
   }
 
   @Delete(':id')
   deleteOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.articlesService.deleteOne(id);
+    return this.articleService.deleteOne(id);
   }
 }
