@@ -18,7 +18,7 @@ export class UserService {
 
   fetchOne(id: string): User {
     const user = this.#state.find((user) => user.id === id);
-    if (!user) throw new NotFoundException(`User doesn't exist`);
+    if (!user) throw new NotFoundException("User doesn't exist");
     return user;
   }
 
