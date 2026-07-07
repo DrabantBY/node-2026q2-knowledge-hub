@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { ArticlesService } from '@articles/articles.service';
 import { BaseEntityService } from '@common/services';
 import type { FetchAllResponse } from '@common/types';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -11,6 +12,10 @@ import { Category } from './entities';
 
 @Injectable()
 export class CategoriesService extends BaseEntityService<Category> {
+  constructor(private articleService: ArticlesService) {
+    super();
+  }
+
   #store: Category[] = [];
 
   fetchAll({
@@ -55,5 +60,6 @@ export class CategoriesService extends BaseEntityService<Category> {
   deleteOne(id: string): void {
     const category = this.fetchOne(id);
     this.#store = this.#store.filter(({ id }) => category.id !== id);
+    this.articleService.resetCategoryId(id);
   }
 }

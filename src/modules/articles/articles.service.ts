@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { CommentsService } from '@comments/comments.service';
 import { BaseEntityService } from '@common/services';
 import type { FetchAllResponse } from '@common/types';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -12,6 +13,10 @@ import { Article } from './entities';
 
 @Injectable()
 export class ArticlesService extends BaseEntityService<Article> {
+  constructor(private commentService: CommentsService) {
+    super();
+  }
+
   #store: Article[] = [];
 
   fetchAll({
@@ -63,7 +68,7 @@ export class ArticlesService extends BaseEntityService<Article> {
 
   updateOne(id: string, dto: UpdateArticleDto): Article {
     const oldArticle = this.fetchOne(id);
-    const newArticle = { ...oldArticle, ...dto };
+    const newArticle = { ...oldArticle, ...dto, updatedAt: Date.now() };
 
     this.#store = this.#store.map((article) =>
       article.id === oldArticle.id ? newArticle : article,
@@ -75,5 +80,24 @@ export class ArticlesService extends BaseEntityService<Article> {
   deleteOne(id: string): void {
     const article = this.fetchOne(id);
     this.#store = this.#store.filter(({ id }) => article.id !== id);
+    this.deleteComment(id);
+  }
+
+  resetAuthorId(id: string): void {
+    const article = this.#store.find(({ authorId }) => authorId === id);
+    if (!article) return;
+    article.authorId = null;
+    article.updatedAt = Date.now();
+  }
+
+  resetCategoryId(id: string): void {
+    const article = this.#store.find(({ categoryId }) => categoryId === id);
+    if (!article) return;
+    article.categoryId = null;
+    article.updatedAt = Date.now();
+  }
+
+  deleteComment(id: string): void {
+    this.commentService.deleteById(id);
   }
 }

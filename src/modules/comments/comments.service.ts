@@ -52,4 +52,10 @@ export class CommentsService extends BaseEntityService<Comment> {
     }
     this.#store = this.#store.filter((comment) => comment.id !== id);
   }
+
+  deleteById(id: string): void {
+    this.#store = this.#store.filter(
+      ({ authorId, articleId }) => authorId !== id || articleId !== id,
+    );
+  }
 }

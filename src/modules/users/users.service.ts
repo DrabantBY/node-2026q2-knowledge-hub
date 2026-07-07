@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { ArticlesService } from '@articles/articles.service';
 import { BaseEntityService } from '@common/services';
 import type { FetchAllResponse } from '@common/types';
 import {
@@ -16,6 +17,10 @@ import { User } from './entities';
 
 @Injectable()
 export class UsersService extends BaseEntityService<User> {
+  constructor(private articleService: ArticlesService) {
+    super();
+  }
+
   #state: User[] = [];
 
   fetchAll({
@@ -54,11 +59,14 @@ export class UsersService extends BaseEntityService<User> {
     if (user.password !== oldPassword)
       throw new ForbiddenException(`Old password is wrong`);
     user.password = newPassword;
+    user.updatedAt = Date.now();
     return user;
   }
 
   deleteOne(id: string): void {
     const user = this.fetchOne(id);
     this.#state = this.#state.filter(({ id }) => user.id !== id);
+    this.articleService.resetAuthorId(id);
+    this.articleService.deleteComment(id);
   }
 }
