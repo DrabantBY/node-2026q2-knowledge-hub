@@ -1,19 +1,32 @@
 import { randomUUID } from 'node:crypto';
+import { BaseEntityService } from '@common/services';
+import type { FetchAllResponse } from '@common/types';
 import {
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { USER_ROLE } from './const';
-import type { CreateUserDto, UpdatePasswordDto } from './dto';
+import type {
+  CreateUserDto,
+  UpdatePasswordDto,
+  UserSearchParamsDto,
+} from './dto';
 import { User } from './entities';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseEntityService<User> {
   #state: User[] = [];
 
-  fetchAll(): User[] {
-    return this.#state;
+  fetchAll({
+    sortBy,
+    order,
+    page,
+    limit,
+  }: UserSearchParamsDto): FetchAllResponse<User[]> {
+    const list = [...this.#state];
+    this.sortBySearchParams(list, sortBy, order);
+    return this.mapToFetchAllResponse(list, page, limit);
   }
 
   fetchOne(id: string): User {

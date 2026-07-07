@@ -9,17 +9,22 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
-import { CreateArticleDto, UpdateArticleDto } from './dto';
+import {
+  ArticleSearchParamsDto,
+  CreateArticleDto,
+  UpdateArticleDto,
+} from './dto';
 
 @Controller('article')
 export class ArticlesController {
   constructor(private readonly articleService: ArticlesService) {}
 
   @Get()
-  fetchAll() {
-    return this.articleService.fetchAll();
+  fetchAll(@Query() searchParams: ArticleSearchParamsDto) {
+    return this.articleService.fetchAll(searchParams);
   }
 
   @Get(':id')

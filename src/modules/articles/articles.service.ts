@@ -1,15 +1,38 @@
 import { randomUUID } from 'node:crypto';
+import { BaseEntityService } from '@common/services';
+import type { FetchAllResponse } from '@common/types';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ARTICLE_STATUS } from './const';
-import type { CreateArticleDto, UpdateArticleDto } from './dto';
+import type {
+  ArticleSearchParamsDto,
+  CreateArticleDto,
+  UpdateArticleDto,
+} from './dto';
 import { Article } from './entities';
 
 @Injectable()
-export class ArticlesService {
+export class ArticlesService extends BaseEntityService<Article> {
   #store: Article[] = [];
 
-  fetchAll(): Article[] {
-    return this.#store;
+  fetchAll({
+    status,
+    categoryId,
+    tag,
+    order,
+    sortBy,
+    limit,
+    page,
+  }: ArticleSearchParamsDto): FetchAllResponse<Article[]> {
+    const list = this.#store.filter(
+      (article) =>
+        (!status || article.status === status) &&
+        (!categoryId || article.categoryId === categoryId) &&
+        (!tag || article.tags.includes(tag)),
+    );
+
+    this.sortBySearchParams(list, sortBy, order);
+
+    return this.mapToFetchAllResponse(list, page, limit);
   }
 
   fetchOne(id: string): Article {

@@ -10,9 +10,10 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto, UpdatePasswordDto } from './dto';
+import { CreateUserDto, UpdatePasswordDto, UserSearchParamsDto } from './dto';
 import { UsersService } from './users.service';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -21,8 +22,8 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Get()
-  fetchAll() {
-    return this.userService.fetchAll();
+  fetchAll(@Query() searchParams: UserSearchParamsDto) {
+    return this.userService.fetchAll(searchParams);
   }
 
   @Get(':id')

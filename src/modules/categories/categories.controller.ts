@@ -9,17 +9,22 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import {
+  CategorySearchParamsDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from './dto';
 
 @Controller('category')
 export class CategoriesController {
   constructor(private readonly categoryService: CategoriesService) {}
 
   @Get()
-  fetchAll() {
-    return this.categoryService.fetchAll();
+  fetchAll(@Query() searchParams: CategorySearchParamsDto) {
+    return this.categoryService.fetchAll(searchParams);
   }
 
   @Get(':id')

@@ -1,23 +1,36 @@
 import { randomUUID } from 'node:crypto';
+import { BaseEntityService } from '@common/services';
+import type { FetchAllResponse } from '@common/types';
 import {
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import type { CreateCommentDto } from './dto';
+import type { CommentSearchParamsDto, CreateCommentDto } from './dto';
 import { Comment } from './entities';
 
 @Injectable()
-export class CommentsService {
+export class CommentsService extends BaseEntityService<Comment> {
   #store: Comment[] = [];
 
-  fetchList(id: string) {
-    const list = this.#store.filter(({ articleId }) => articleId === id);
+  fetchList({
+    articleId,
+    sortBy,
+    order,
+    page,
+    limit,
+  }: CommentSearchParamsDto): FetchAllResponse<Comment[]> {
+    const list = this.#store.filter(
+      (comment) => comment.articleId === articleId,
+    );
+
     if (list.length === 0)
       throw new UnprocessableEntityException(
         "ArticleId reference doesn't exist",
       );
-    return list;
+
+    this.sortBySearchParams(list, sortBy, order);
+    return this.mapToFetchAllResponse(list, page, limit);
   }
 
   insertOne(dto: CreateCommentDto): Comment {

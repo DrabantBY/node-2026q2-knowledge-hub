@@ -11,15 +11,15 @@ import {
   Query,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { CreateCommentDto, SearchParamsDto } from './dto';
+import { CommentSearchParamsDto, CreateCommentDto } from './dto';
 
 @Controller('comment')
 export class CommentsController {
   constructor(private readonly commentService: CommentsService) {}
 
   @Get()
-  fetchList(@Query() { articleId }: SearchParamsDto) {
-    return this.commentService.fetchList(articleId);
+  fetchList(@Query() searchParams: CommentSearchParamsDto) {
+    return this.commentService.fetchList(searchParams);
   }
 
   @Post()
