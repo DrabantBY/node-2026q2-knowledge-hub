@@ -19,7 +19,7 @@ export class ArticlesService extends BaseEntityService<Article> {
 
   #store: Article[] = [];
 
-  fetchAll({
+  async fetchAll({
     status,
     categoryId,
     tag,
@@ -27,20 +27,18 @@ export class ArticlesService extends BaseEntityService<Article> {
     sortBy,
     limit,
     page,
-  }: ArticleSearchParamsDto): FetchAllResponse<Article[]> {
+  }: ArticleSearchParamsDto): Promise<FetchAllResponse<Article[]>> {
     const list = this.#store.filter(
       (article) =>
         (!status || article.status === status) &&
         (!categoryId || article.categoryId === categoryId) &&
         (!tag || article.tags.includes(tag)),
     );
-
     this.sortBySearchParams(list, sortBy, order);
-
     return this.mapToFetchAllResponse(list, page, limit);
   }
 
-  fetchOne(id: string): Article {
+  async fetchOne(id: string): Promise<Article> {
     const article = this.#store.find((article) => article.id === id);
     if (!article) {
       throw new NotFoundException("Article doesn't exist");
@@ -48,9 +46,8 @@ export class ArticlesService extends BaseEntityService<Article> {
     return article;
   }
 
-  insertOne(dto: CreateArticleDto): Article {
+  async insertOne(dto: CreateArticleDto): Promise<Article> {
     const date = Date.now();
-
     const article = new Article({
       id: randomUUID(),
       ...dto,
@@ -61,43 +58,40 @@ export class ArticlesService extends BaseEntityService<Article> {
       createdAt: date,
       updatedAt: date,
     });
-
     this.#store.push(article);
     return article;
   }
 
-  updateOne(id: string, dto: UpdateArticleDto): Article {
-    const oldArticle = this.fetchOne(id);
+  async updateOne(id: string, dto: UpdateArticleDto): Promise<Article> {
+    const oldArticle = await this.fetchOne(id);
     const newArticle = { ...oldArticle, ...dto, updatedAt: Date.now() };
-
     this.#store = this.#store.map((article) =>
       article.id === oldArticle.id ? newArticle : article,
     );
-
     return newArticle;
   }
 
-  deleteOne(id: string): void {
-    const article = this.fetchOne(id);
+  async deleteOne(id: string): Promise<void> {
+    const article = await this.fetchOne(id);
     this.#store = this.#store.filter(({ id }) => article.id !== id);
-    this.deleteComment(id);
+    await this.deleteComment(id);
   }
 
-  resetAuthorId(id: string): void {
+  async resetAuthorId(id: string): Promise<void> {
     const article = this.#store.find(({ authorId }) => authorId === id);
     if (!article) return;
     article.authorId = null;
     article.updatedAt = Date.now();
   }
 
-  resetCategoryId(id: string): void {
+  async resetCategoryId(id: string): Promise<void> {
     const article = this.#store.find(({ categoryId }) => categoryId === id);
     if (!article) return;
     article.categoryId = null;
     article.updatedAt = Date.now();
   }
 
-  deleteComment(id: string): void {
+  async deleteComment(id: string): Promise<void> {
     this.commentService.deleteById(id);
   }
 }

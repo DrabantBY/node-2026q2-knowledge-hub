@@ -13,27 +13,31 @@ import { Comment } from './entities';
 export class CommentsService extends BaseEntityService<Comment> {
   #store: Comment[] = [];
 
-  fetchList({
+  async fetchList({
     articleId,
     sortBy,
     order,
     page,
     limit,
-  }: CommentSearchParamsDto): FetchAllResponse<Comment[]> {
+  }: CommentSearchParamsDto): Promise<FetchAllResponse<Comment[]>> {
     const list = this.#store.filter(
       (comment) => comment.articleId === articleId,
     );
-
     if (list.length === 0)
       throw new UnprocessableEntityException(
         "ArticleId reference doesn't exist",
       );
-
     this.sortBySearchParams(list, sortBy, order);
     return this.mapToFetchAllResponse(list, page, limit);
   }
 
-  insertOne(dto: CreateCommentDto): Comment {
+  async fetchOne(id: string): Promise<Comment> {
+    const comment = this.#store.find((comment) => comment.id === id);
+    if (!comment) throw new NotFoundException("Comment doesn't exist");
+    return comment;
+  }
+
+  async insertOne(dto: CreateCommentDto): Promise<Comment> {
     const comment = new Comment({
       id: randomUUID(),
       ...dto,
@@ -41,19 +45,15 @@ export class CommentsService extends BaseEntityService<Comment> {
       createdAt: Date.now(),
     });
     this.#store.push(comment);
-
     return comment;
   }
 
-  deleteOne(id: string): void {
-    const isExist = this.#store.some((comment) => comment.id === id);
-    if (!isExist) {
-      throw new NotFoundException("Comment doesn't exist");
-    }
-    this.#store = this.#store.filter((comment) => comment.id !== id);
+  async deleteOne(id: string): Promise<void> {
+    const comment = await this.fetchOne(id);
+    this.#store = this.#store.filter(({ id }) => comment.id !== id);
   }
 
-  deleteById(id: string): void {
+  async deleteById(id: string): Promise<void> {
     this.#store = this.#store.filter(
       ({ authorId, articleId }) => authorId !== id || articleId !== id,
     );

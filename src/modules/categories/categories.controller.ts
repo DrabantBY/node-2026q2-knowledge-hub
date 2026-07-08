@@ -1,3 +1,4 @@
+import type { FetchAllResponse } from '@common/types';
 import {
   Body,
   Controller,
@@ -18,6 +19,7 @@ import {
   CreateCategoryDto,
   UpdateCategoryDto,
 } from './dto';
+import type { Category } from './entities';
 
 @ApiTags('Categories Api')
 @Controller('category')
@@ -26,19 +28,21 @@ export class CategoriesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all categories.' })
-  fetchAll(@Query() searchParams: CategorySearchParamsDto) {
+  fetchAll(
+    @Query() searchParams: CategorySearchParamsDto,
+  ): Promise<FetchAllResponse<Category[]>> {
     return this.categoryService.fetchAll(searchParams);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get single category by id.' })
-  fetchOne(@Param('id', ParseUUIDPipe) id: string) {
+  fetchOne(@Param('id', ParseUUIDPipe) id: string): Promise<Category> {
     return this.categoryService.fetchOne(id);
   }
 
   @Post()
   @ApiOperation({ summary: 'Add new category (admin only).' })
-  insertOne(@Body() dto: CreateCategoryDto) {
+  insertOne(@Body() dto: CreateCategoryDto): Promise<Category> {
     return this.categoryService.insertOne(dto);
   }
 
@@ -47,7 +51,7 @@ export class CategoriesController {
   updateOne(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCategoryDto,
-  ) {
+  ): Promise<Category> {
     return this.categoryService.updateOne(id, dto);
   }
 
@@ -56,7 +60,7 @@ export class CategoriesController {
     summary: 'Delete category. Set categoryId to null on associated articles.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', ParseUUIDPipe) id: string) {
+  deleteOne(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.categoryService.deleteOne(id);
   }
 }

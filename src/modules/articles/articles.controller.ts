@@ -1,3 +1,4 @@
+import type { FetchAllResponse } from '@common/types';
 import {
   Body,
   Controller,
@@ -18,6 +19,7 @@ import {
   CreateArticleDto,
   UpdateArticleDto,
 } from './dto';
+import type { Article } from './entities';
 
 @ApiTags('Articles Api')
 @Controller('article')
@@ -29,13 +31,15 @@ export class ArticlesController {
     summary:
       'Get all articles. Supports filtering by status, categoryId, and tag.',
   })
-  fetchAll(@Query() searchParams: ArticleSearchParamsDto) {
+  fetchAll(
+    @Query() searchParams: ArticleSearchParamsDto,
+  ): Promise<FetchAllResponse<Article[]>> {
     return this.articleService.fetchAll(searchParams);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get single article by id.' })
-  fetchOne(@Param('id', ParseUUIDPipe) id: string) {
+  fetchOne(@Param('id', ParseUUIDPipe) id: string): Promise<Article> {
     return this.articleService.fetchOne(id);
   }
 
@@ -43,7 +47,7 @@ export class ArticlesController {
   @ApiOperation({
     summary: 'Add new article (editor can create own, admin can create any).',
   })
-  insertOne(@Body() dto: CreateArticleDto) {
+  insertOne(@Body() dto: CreateArticleDto): Promise<Article> {
     return this.articleService.insertOne(dto);
   }
 
@@ -55,7 +59,7 @@ export class ArticlesController {
   updateOne(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateArticleDto,
-  ) {
+  ): Promise<Article> {
     return this.articleService.updateOne(id, dto);
   }
 
@@ -64,7 +68,7 @@ export class ArticlesController {
     summary: 'Delete article. Delete all associated comments (admin only).',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', ParseUUIDPipe) id: string) {
+  deleteOne(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.articleService.deleteOne(id);
   }
 }

@@ -18,28 +18,26 @@ export class CategoriesService extends BaseEntityService<Category> {
 
   #store: Category[] = [];
 
-  fetchAll({
+  async fetchAll({
     sortBy,
     order,
     page,
     limit,
-  }: CategorySearchParamsDto): FetchAllResponse<Category[]> {
+  }: CategorySearchParamsDto): Promise<FetchAllResponse<Category[]>> {
     const list = [...this.#store];
     this.sortBySearchParams(list, sortBy, order);
     return this.mapToFetchAllResponse(list, page, limit);
   }
 
-  fetchOne(id: string): Category {
+  async fetchOne(id: string): Promise<Category> {
     const category = this.#store.find((category) => category.id === id);
-
     if (!category) {
       throw new NotFoundException("Category doesn't exist");
     }
-
     return category;
   }
 
-  insertOne(dto: CreateCategoryDto): Category {
+  async insertOne(dto: CreateCategoryDto): Promise<Category> {
     const category = new Category({
       id: randomUUID(),
       ...dto,
@@ -48,8 +46,8 @@ export class CategoriesService extends BaseEntityService<Category> {
     return category;
   }
 
-  updateOne(id: string, dto: UpdateCategoryDto): Category {
-    const oldCategory = this.fetchOne(id);
+  async updateOne(id: string, dto: UpdateCategoryDto): Promise<Category> {
+    const oldCategory = await this.fetchOne(id);
     const newCategory = { ...oldCategory, ...dto };
     this.#store = this.#store.map((category) =>
       category.id === oldCategory.id ? newCategory : category,
@@ -57,9 +55,9 @@ export class CategoriesService extends BaseEntityService<Category> {
     return newCategory;
   }
 
-  deleteOne(id: string): void {
-    const category = this.fetchOne(id);
+  async deleteOne(id: string): Promise<void> {
+    const category = await this.fetchOne(id);
     this.#store = this.#store.filter(({ id }) => category.id !== id);
-    this.articleService.resetCategoryId(id);
+    await this.articleService.resetCategoryId(id);
   }
 }

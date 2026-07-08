@@ -23,24 +23,28 @@ export class UsersService extends BaseEntityService<User> {
 
   #state: User[] = [];
 
-  fetchAll({
+  async fetchAll({
     sortBy,
     order,
     page,
     limit,
-  }: UserSearchParamsDto): FetchAllResponse<User[]> {
+  }: UserSearchParamsDto): Promise<FetchAllResponse<User[]>> {
     const list = [...this.#state];
     this.sortBySearchParams(list, sortBy, order);
     return this.mapToFetchAllResponse(list, page, limit);
   }
 
-  fetchOne(id: string): User {
+  async fetchOne(id: string): Promise<User> {
     const user = this.#state.find((user) => user.id === id);
     if (!user) throw new NotFoundException("User doesn't exist");
     return user;
   }
 
-  insertOne({ login, password, role = USER_ROLE.VIEWER }: CreateUserDto): User {
+  async insertOne({
+    login,
+    password,
+    role = USER_ROLE.VIEWER,
+  }: CreateUserDto): Promise<User> {
     const date = Date.now();
     const user: User = new User({
       id: randomUUID(),
@@ -54,8 +58,11 @@ export class UsersService extends BaseEntityService<User> {
     return user;
   }
 
-  updateOne(id: string, { oldPassword, newPassword }: UpdatePasswordDto): User {
-    const user = this.fetchOne(id);
+  async updateOne(
+    id: string,
+    { oldPassword, newPassword }: UpdatePasswordDto,
+  ): Promise<User> {
+    const user = await this.fetchOne(id);
     if (user.password !== oldPassword)
       throw new ForbiddenException(`Old password is wrong`);
     user.password = newPassword;
@@ -63,10 +70,10 @@ export class UsersService extends BaseEntityService<User> {
     return user;
   }
 
-  deleteOne(id: string): void {
-    const user = this.fetchOne(id);
+  async deleteOne(id: string): Promise<void> {
+    const user = await this.fetchOne(id);
     this.#state = this.#state.filter(({ id }) => user.id !== id);
-    this.articleService.resetAuthorId(id);
-    this.articleService.deleteComment(id);
+    await this.articleService.resetAuthorId(id);
+    await this.articleService.deleteComment(id);
   }
 }
