@@ -1,3 +1,4 @@
+import { ApiQueryParams } from '@common/decorators';
 import type { FetchAllResponse } from '@common/types';
 import {
   Body,
@@ -15,6 +16,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { USER_SORT_KEY } from './const';
 import { CreateUserDto, UpdatePasswordDto, UserSearchParamsDto } from './dto';
 import type { User } from './entities';
 import { UsersService } from './users.service';
@@ -27,6 +29,7 @@ export class UsersController {
 
   @Get()
   @ApiOperation({ summary: 'Get all users.' })
+  @ApiQueryParams(USER_SORT_KEY)
   fetchAll(
     @Query() searchParams: UserSearchParamsDto,
   ): Promise<FetchAllResponse<User[]>> {

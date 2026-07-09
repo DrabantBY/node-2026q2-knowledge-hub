@@ -1,3 +1,4 @@
+import { ApiQueryParams } from '@common/decorators';
 import type { FetchAllResponse } from '@common/types';
 import {
   Body,
@@ -14,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
+import { CATEGORY_SORT_KEY } from './const';
 import {
   CategorySearchParamsDto,
   CreateCategoryDto,
@@ -28,6 +30,7 @@ export class CategoriesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all categories.' })
+  @ApiQueryParams(CATEGORY_SORT_KEY)
   fetchAll(
     @Query() searchParams: CategorySearchParamsDto,
   ): Promise<FetchAllResponse<Category[]>> {

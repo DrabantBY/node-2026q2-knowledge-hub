@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommentsService } from './comments.service';
+import { ApiCommentQueryParams } from './decorators';
 import { CommentSearchParamsDto, CreateCommentDto } from './dto';
 import type { Comment } from './entities';
 
@@ -26,6 +27,7 @@ export class CommentsController {
     summary:
       'Get all comments for a specific article. Requires articleId query parameter.',
   })
+  @ApiCommentQueryParams()
   fetchList(
     @Query() searchParams: CommentSearchParamsDto,
   ): Promise<FetchAllResponse<Comment[]>> {

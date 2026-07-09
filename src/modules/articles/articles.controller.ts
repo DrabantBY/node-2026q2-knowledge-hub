@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ArticlesService } from './articles.service';
+import { ApiArticleQueryParams } from './decorators';
 import {
   ArticleSearchParamsDto,
   CreateArticleDto,
@@ -31,6 +32,7 @@ export class ArticlesController {
     summary:
       'Get all articles. Supports filtering by status, categoryId, and tag.',
   })
+  @ApiArticleQueryParams()
   fetchAll(
     @Query() searchParams: ArticleSearchParamsDto,
   ): Promise<FetchAllResponse<Article[]>> {
