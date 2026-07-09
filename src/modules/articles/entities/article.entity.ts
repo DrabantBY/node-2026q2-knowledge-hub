@@ -1,14 +1,55 @@
-import type { ArticleStatus } from '../const';
+import { ApiProperty } from '@nestjs/swagger';
+import { ARTICLE_STATUS, type ArticleStatus } from '../const';
 
 export class Article {
+  @ApiProperty({ type: String, format: 'uuid' })
   id: string;
+
+  @ApiProperty({ type: String, example: 'Introduction to NestJS' })
   title: string;
+
+  @ApiProperty({
+    type: String,
+    example:
+      'NestJS is a framework for building efficient server-side applications.',
+  })
   content: string;
+
+  @ApiProperty({
+    enum: Object.values(ARTICLE_STATUS),
+    example: ARTICLE_STATUS.DRAFT,
+    default: ARTICLE_STATUS.DRAFT,
+  })
   status: ArticleStatus;
+
+  @ApiProperty({
+    type: String,
+    format: 'uuid',
+    nullable: true,
+    default: null,
+    example: '00000000-0000-0000-0000-000000000000',
+  })
   authorId: string | null;
+
+  @ApiProperty({
+    type: String,
+    format: 'uuid',
+    nullable: true,
+    default: null,
+    example: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+  })
   categoryId: string | null;
+
+  @ApiProperty({
+    type: [String],
+    example: ['nodejs', 'typescript'],
+  })
   tags: string[];
+
+  @ApiProperty({ type: 'integer', example: 1655000000 })
   createdAt: number;
+
+  @ApiProperty({ type: 'integer', example: 1655000000 })
   updatedAt: number;
 
   constructor(data: Partial<Article>) {

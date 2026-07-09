@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateCategoryDto {
   @ApiProperty({
-    type: 'string',
+    type: String,
     example: 'Technology',
   })
   @IsString()
@@ -11,7 +11,7 @@ export class CreateCategoryDto {
   name: string;
 
   @ApiProperty({
-    type: 'string',
+    type: String,
     example: 'Articles about technology',
   })
   @IsString()

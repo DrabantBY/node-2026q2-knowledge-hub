@@ -1,5 +1,4 @@
-import { ApiQueryParams } from '@common/decorators';
-import type { FetchAllResponse } from '@common/types';
+import type { PaginationResponse } from '@common/types';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -15,10 +14,17 @@ import {
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ApiPaginationResponse, ApiQueryParams } from '@swagger/decorators';
 import { USER_SORT_KEY } from './const';
 import { CreateUserDto, UpdatePasswordDto, UserSearchParamsDto } from './dto';
-import type { User } from './entities';
+import { User } from './entities';
 import { UsersService } from './users.service';
 
 @ApiTags('Users Api')
@@ -30,26 +36,30 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Get all users.' })
   @ApiQueryParams(USER_SORT_KEY)
+  @ApiPaginationResponse(User)
   fetchAll(
     @Query() searchParams: UserSearchParamsDto,
-  ): Promise<FetchAllResponse<User[]>> {
+  ): Promise<PaginationResponse<User>> {
     return this.userService.fetchAll(searchParams);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get single user by id.' })
+  @ApiOkResponse({ type: User })
   fetchOne(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
     return this.userService.fetchOne(id);
   }
 
   @Post()
   @ApiOperation({ summary: 'Add new user (admin only).' })
+  @ApiCreatedResponse({ type: User })
   insertOne(@Body() dto: CreateUserDto): Promise<User> {
     return this.userService.insertOne(dto);
   }
 
   @Put(':id')
   @ApiOperation({ summary: "Update user's password by id." })
+  @ApiOkResponse({ type: User })
   updateOne(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdatePasswordDto,
@@ -62,6 +72,7 @@ export class UsersController {
     summary:
       "Delete user by id. Set authorId to null on articles, delete user's comments.",
   })
+  @ApiNoContentResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteOne(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.userService.deleteOne(id);

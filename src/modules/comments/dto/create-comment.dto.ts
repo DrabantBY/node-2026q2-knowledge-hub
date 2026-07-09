@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateCommentDto {
   @ApiProperty({
-    type: 'string',
+    type: String,
     example: 'Great article!',
   })
   @IsString()
@@ -11,7 +11,7 @@ export class CreateCommentDto {
   content: string;
 
   @ApiProperty({
-    type: 'string',
+    type: String,
     format: 'uuid',
     example: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
   })
@@ -20,7 +20,7 @@ export class CreateCommentDto {
   articleId: string;
 
   @ApiPropertyOptional({
-    type: 'string',
+    type: String,
     format: 'uuid',
     nullable: true,
     example: '00000000-0000-0000-0000-000000000000',

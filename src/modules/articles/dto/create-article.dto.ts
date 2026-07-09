@@ -11,7 +11,7 @@ import { ARTICLE_STATUS, type ArticleStatus } from '../const';
 
 export class CreateArticleDto {
   @ApiProperty({
-    type: 'string',
+    type: String,
     example: 'Introduction to NestJS',
   })
   @IsString()
@@ -19,7 +19,7 @@ export class CreateArticleDto {
   title: string;
 
   @ApiProperty({
-    type: 'string',
+    type: String,
     example:
       'NestJS is a framework for building efficient server-side applications.',
   })
@@ -37,7 +37,7 @@ export class CreateArticleDto {
   status?: ArticleStatus;
 
   @ApiPropertyOptional({
-    type: 'string',
+    type: String,
     format: 'uuid',
     nullable: true,
     example: '00000000-0000-0000-0000-000000000000',
@@ -48,7 +48,7 @@ export class CreateArticleDto {
   authorId?: string | null;
 
   @ApiPropertyOptional({
-    type: 'string',
+    type: String,
     format: 'uuid',
     nullable: true,
     example: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
@@ -59,9 +59,8 @@ export class CreateArticleDto {
   categoryId?: string | null;
 
   @ApiPropertyOptional({
-    type: 'array',
-    items: { type: 'string' },
-    default: ['nodejs', 'typescript'],
+    type: [String],
+    example: ['nodejs', 'typescript'],
   })
   @IsArray()
   @IsString({ each: true })

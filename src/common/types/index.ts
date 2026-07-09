@@ -1,1 +1,1 @@
-export * from './fetch-all-response.type';
+export * from './pagination-response.type';

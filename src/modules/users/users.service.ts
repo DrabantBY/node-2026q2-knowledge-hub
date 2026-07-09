@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { ArticlesService } from '@articles/articles.service';
 import { BaseEntityService } from '@common/services';
-import type { FetchAllResponse } from '@common/types';
+import type { PaginationResponse } from '@common/types';
 import {
   ForbiddenException,
   Injectable,
@@ -28,10 +28,10 @@ export class UsersService extends BaseEntityService<User> {
     order,
     page,
     limit,
-  }: UserSearchParamsDto): Promise<FetchAllResponse<User[]>> {
+  }: UserSearchParamsDto): Promise<PaginationResponse<User>> {
     const list = [...this.#state];
     this.sortBySearchParams(list, sortBy, order);
-    return this.mapToFetchAllResponse(list, page, limit);
+    return this.mapToPagination(list, page, limit);
   }
 
   async fetchOne(id: string): Promise<User> {

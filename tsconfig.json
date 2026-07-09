@@ -15,6 +15,7 @@
       "@categories/*": ["src/modules/categories/*"],
       "@comments/*": ["src/modules/comments/*"],
       "@common/*": ["src/common/*"],
+      "@swagger/*": ["src/swagger/*"],
       "@users/*": ["src/modules/users/*"],
     },
     "incremental": true,

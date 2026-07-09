@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { ArticlesService } from '@articles/articles.service';
 import { BaseEntityService } from '@common/services';
-import type { FetchAllResponse } from '@common/types';
+import type { PaginationResponse } from '@common/types';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type {
   CategorySearchParamsDto,
@@ -23,10 +23,10 @@ export class CategoriesService extends BaseEntityService<Category> {
     order,
     page,
     limit,
-  }: CategorySearchParamsDto): Promise<FetchAllResponse<Category[]>> {
+  }: CategorySearchParamsDto): Promise<PaginationResponse<Category>> {
     const list = [...this.#store];
     this.sortBySearchParams(list, sortBy, order);
-    return this.mapToFetchAllResponse(list, page, limit);
+    return this.mapToPagination(list, page, limit);
   }
 
   async fetchOne(id: string): Promise<Category> {

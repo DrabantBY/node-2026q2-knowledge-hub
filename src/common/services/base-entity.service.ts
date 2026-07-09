@@ -1,5 +1,5 @@
 import { SORT_ORDER, type SortOrder } from '@common/const';
-import type { FetchAllResponse } from '@common/types';
+import type { PaginationResponse } from '@common/types';
 
 export abstract class BaseEntityService<T extends object> {
   protected sortBySearchParams(
@@ -24,11 +24,11 @@ export abstract class BaseEntityService<T extends object> {
     }
   }
 
-  protected mapToFetchAllResponse(
+  protected mapToPagination(
     list: T[],
     page: number = 1,
     limit: number = list.length,
-  ): FetchAllResponse<T[]> {
+  ): PaginationResponse<T> {
     return {
       data: list.slice((page - 1) * limit, page * limit),
       page,

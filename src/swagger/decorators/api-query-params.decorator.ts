@@ -21,7 +21,7 @@ export const ApiQueryParams = (sortKeys: Record<string, string>) =>
     ApiQuery({
       name: 'page',
       required: false,
-      type: Number,
+      type: 'integer',
       description: 'Current page',
       example: 1,
     }),
@@ -29,7 +29,7 @@ export const ApiQueryParams = (sortKeys: Record<string, string>) =>
     ApiQuery({
       name: 'limit',
       required: false,
-      type: Number,
+      type: 'integer',
       description: 'Amount entities per page',
       example: 10,
     }),

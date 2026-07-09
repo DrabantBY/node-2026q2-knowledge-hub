@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { BaseEntityService } from '@common/services';
-import type { FetchAllResponse } from '@common/types';
+import type { PaginationResponse } from '@common/types';
 import {
   Injectable,
   NotFoundException,
@@ -19,7 +19,7 @@ export class CommentsService extends BaseEntityService<Comment> {
     order,
     page,
     limit,
-  }: CommentSearchParamsDto): Promise<FetchAllResponse<Comment[]>> {
+  }: CommentSearchParamsDto): Promise<PaginationResponse<Comment>> {
     const list = this.#store.filter(
       (comment) => comment.articleId === articleId,
     );
@@ -28,7 +28,7 @@ export class CommentsService extends BaseEntityService<Comment> {
         "ArticleId reference doesn't exist",
       );
     this.sortBySearchParams(list, sortBy, order);
-    return this.mapToFetchAllResponse(list, page, limit);
+    return this.mapToPagination(list, page, limit);
   }
 
   async fetchOne(id: string): Promise<Comment> {

@@ -4,7 +4,7 @@ import { USER_ROLE, type UserRole } from '../const';
 
 export class CreateUserDto {
   @ApiProperty({
-    type: 'string',
+    type: String,
     example: 'TestUser',
   })
   @IsString()
@@ -12,7 +12,8 @@ export class CreateUserDto {
   login: string;
 
   @ApiProperty({
-    type: 'string',
+    type: String,
+    format: 'password',
     example: 'TestPassword',
   })
   @IsString()
