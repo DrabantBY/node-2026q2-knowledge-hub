@@ -1,8 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsDefined,
   IsEnum,
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
@@ -15,7 +15,7 @@ export class CreateArticleDto {
     example: 'Introduction to NestJS',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsDefined()
   title: string;
 
   @ApiProperty({
@@ -24,7 +24,7 @@ export class CreateArticleDto {
       'NestJS is a framework for building efficient server-side applications.',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsDefined()
   content: string;
 
   @ApiPropertyOptional({

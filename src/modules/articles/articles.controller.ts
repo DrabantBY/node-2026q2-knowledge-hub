@@ -1,3 +1,9 @@
+import {
+  reqBodyValidatePipe,
+  reqQueryValidatePipe,
+  uuidValidatePipe,
+} from '@common/pipes';
+
 import type { PaginationResponse } from '@common/types';
 import {
   Body,
@@ -7,7 +13,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -19,7 +24,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginationResponse } from '@swagger/decorators';
+import { ApiPaginationResponse, ApiParamIdError } from '@swagger/decorators';
 import { ArticlesService } from './articles.service';
 import { ApiArticleQueryParams } from './decorators';
 import {
@@ -42,7 +47,7 @@ export class ArticlesController {
   @ApiArticleQueryParams()
   @ApiPaginationResponse(Article)
   fetchAll(
-    @Query() searchParams: ArticleSearchParamsDto,
+    @Query(reqQueryValidatePipe()) searchParams: ArticleSearchParamsDto,
   ): Promise<PaginationResponse<Article>> {
     return this.articleService.fetchAll(searchParams);
   }
@@ -50,7 +55,10 @@ export class ArticlesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single article by id.' })
   @ApiOkResponse({ type: Article })
-  fetchOne(@Param('id', ParseUUIDPipe) id: string): Promise<Article> {
+  @ApiParamIdError('Article')
+  fetchOne(
+    @Param('id', uuidValidatePipe('Article')) id: string,
+  ): Promise<Article> {
     return this.articleService.fetchOne(id);
   }
 
@@ -59,7 +67,9 @@ export class ArticlesController {
     summary: 'Add new article (editor can create own, admin can create any).',
   })
   @ApiCreatedResponse({ type: Article })
-  insertOne(@Body() dto: CreateArticleDto): Promise<Article> {
+  insertOne(
+    @Body(reqBodyValidatePipe()) dto: CreateArticleDto,
+  ): Promise<Article> {
     return this.articleService.insertOne(dto);
   }
 
@@ -69,9 +79,10 @@ export class ArticlesController {
       'Update article by id (editor can update own, admin can update any).',
   })
   @ApiOkResponse({ type: Article })
+  @ApiParamIdError('Article')
   updateOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateArticleDto,
+    @Param('id', uuidValidatePipe('Article')) id: string,
+    @Body(reqBodyValidatePipe()) dto: UpdateArticleDto,
   ): Promise<Article> {
     return this.articleService.updateOne(id, dto);
   }
@@ -81,8 +92,11 @@ export class ArticlesController {
     summary: 'Delete article. Delete all associated comments (admin only).',
   })
   @ApiNoContentResponse()
+  @ApiParamIdError('Article')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  deleteOne(
+    @Param('id', uuidValidatePipe('Article')) id: string,
+  ): Promise<void> {
     return this.articleService.deleteOne(id);
   }
 }

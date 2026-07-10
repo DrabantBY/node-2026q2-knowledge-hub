@@ -14,5 +14,12 @@ export const setupSwagger = (app: INestApplication): void => {
 
   SwaggerModule.setup('doc', app, document, {
     customSiteTitle: 'Knowledge Hub Api',
+    swaggerOptions: {
+      filter: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+      persistAuthorization: true,
+      docExpansion: 'none',
+    },
   });
 };

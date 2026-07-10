@@ -1,3 +1,8 @@
+import {
+  reqBodyValidatePipe,
+  reqQueryValidatePipe,
+  uuidValidatePipe,
+} from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
 import {
   Body,
@@ -8,7 +13,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -21,7 +25,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginationResponse, ApiQueryParams } from '@swagger/decorators';
+import {
+  ApiPaginationResponse,
+  ApiParamIdError,
+  ApiQueryParams,
+} from '@swagger/decorators';
 import { USER_SORT_KEY } from './const';
 import { CreateUserDto, UpdatePasswordDto, UserSearchParamsDto } from './dto';
 import { User } from './entities';
@@ -38,7 +46,7 @@ export class UsersController {
   @ApiQueryParams(USER_SORT_KEY)
   @ApiPaginationResponse(User)
   fetchAll(
-    @Query() searchParams: UserSearchParamsDto,
+    @Query(reqQueryValidatePipe()) searchParams: UserSearchParamsDto,
   ): Promise<PaginationResponse<User>> {
     return this.userService.fetchAll(searchParams);
   }
@@ -46,23 +54,25 @@ export class UsersController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single user by id.' })
   @ApiOkResponse({ type: User })
-  fetchOne(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
+  @ApiParamIdError('User')
+  fetchOne(@Param('id', uuidValidatePipe('User')) id: string): Promise<User> {
     return this.userService.fetchOne(id);
   }
 
   @Post()
   @ApiOperation({ summary: 'Add new user (admin only).' })
   @ApiCreatedResponse({ type: User })
-  insertOne(@Body() dto: CreateUserDto): Promise<User> {
+  insertOne(@Body(reqBodyValidatePipe()) dto: CreateUserDto): Promise<User> {
     return this.userService.insertOne(dto);
   }
 
   @Put(':id')
   @ApiOperation({ summary: "Update user's password by id." })
   @ApiOkResponse({ type: User })
+  @ApiParamIdError('User')
   updateOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdatePasswordDto,
+    @Param('id', uuidValidatePipe('User')) id: string,
+    @Body(reqBodyValidatePipe()) dto: UpdatePasswordDto,
   ): Promise<User> {
     return this.userService.updateOne(id, dto);
   }
@@ -73,8 +83,9 @@ export class UsersController {
       "Delete user by id. Set authorId to null on articles, delete user's comments.",
   })
   @ApiNoContentResponse()
+  @ApiParamIdError('User')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  deleteOne(@Param('id', uuidValidatePipe('User')) id: string): Promise<void> {
     return this.userService.deleteOne(id);
   }
 }

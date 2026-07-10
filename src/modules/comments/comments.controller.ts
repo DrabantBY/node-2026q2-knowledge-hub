@@ -1,3 +1,8 @@
+import {
+  reqBodyValidatePipe,
+  reqQueryValidatePipe,
+  uuidValidatePipe,
+} from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
 import {
   Body,
@@ -7,7 +12,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Post,
   Query,
 } from '@nestjs/common';
@@ -18,7 +22,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginationResponse } from '@swagger/decorators';
+import { ApiPaginationResponse, ApiParamIdError } from '@swagger/decorators';
 import { CommentsService } from './comments.service';
 import { ApiCommentQueryParams } from './decorators';
 import { CommentSearchParamsDto, CreateCommentDto } from './dto';
@@ -37,7 +41,7 @@ export class CommentsController {
   @ApiCommentQueryParams()
   @ApiPaginationResponse(Comment)
   fetchList(
-    @Query() searchParams: CommentSearchParamsDto,
+    @Query(reqQueryValidatePipe()) searchParams: CommentSearchParamsDto,
   ): Promise<PaginationResponse<Comment>> {
     return this.commentService.fetchList(searchParams);
   }
@@ -45,7 +49,10 @@ export class CommentsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single comment by id.' })
   @ApiOkResponse({ type: Comment })
-  fetchOne(@Param('id', ParseUUIDPipe) id: string): Promise<Comment> {
+  @ApiParamIdError('Comment')
+  fetchOne(
+    @Param('id', uuidValidatePipe('Comment')) id: string,
+  ): Promise<Comment> {
     return this.commentService.fetchOne(id);
   }
 
@@ -55,7 +62,9 @@ export class CommentsController {
       'Add comment to article (editor can create own, admin can create any).',
   })
   @ApiCreatedResponse({ type: Comment })
-  insertOne(@Body() dto: CreateCommentDto): Promise<Comment> {
+  insertOne(
+    @Body(reqBodyValidatePipe()) dto: CreateCommentDto,
+  ): Promise<Comment> {
     return this.commentService.insertOne(dto);
   }
 
@@ -64,8 +73,11 @@ export class CommentsController {
     summary: 'Delete comment (admin can delete any, editor can delete own).',
   })
   @ApiNoContentResponse()
+  @ApiParamIdError('Comment')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  deleteOne(
+    @Param('id', uuidValidatePipe('Comment')) id: string,
+  ): Promise<void> {
     return this.commentService.deleteOne(id);
   }
 }

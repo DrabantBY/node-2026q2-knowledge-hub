@@ -4,8 +4,7 @@ import {
   Module,
   type NestModule,
 } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 import {
   ArticlesModule,
   CategoriesModule,
@@ -15,8 +14,6 @@ import {
 
 @Module({
   imports: [UsersModule, ArticlesModule, CategoriesModule, CommentsModule],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

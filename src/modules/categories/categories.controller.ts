@@ -1,3 +1,8 @@
+import {
+  reqBodyValidatePipe,
+  reqQueryValidatePipe,
+  uuidValidatePipe,
+} from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
 import {
   Body,
@@ -7,7 +12,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -19,7 +23,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginationResponse, ApiQueryParams } from '@swagger/decorators';
+import {
+  ApiPaginationResponse,
+  ApiParamIdError,
+  ApiQueryParams,
+} from '@swagger/decorators';
 import { CategoriesService } from './categories.service';
 import { CATEGORY_SORT_KEY } from './const';
 import {
@@ -39,7 +47,7 @@ export class CategoriesController {
   @ApiQueryParams(CATEGORY_SORT_KEY)
   @ApiPaginationResponse(Category)
   fetchAll(
-    @Query() searchParams: CategorySearchParamsDto,
+    @Query(reqQueryValidatePipe()) searchParams: CategorySearchParamsDto,
   ): Promise<PaginationResponse<Category>> {
     return this.categoryService.fetchAll(searchParams);
   }
@@ -47,23 +55,27 @@ export class CategoriesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single category by id.' })
   @ApiOkResponse({ type: Category })
-  fetchOne(@Param('id', ParseUUIDPipe) id: string): Promise<Category> {
+  @ApiParamIdError('Category')
+  fetchOne(@Param('id', uuidValidatePipe('')) id: string): Promise<Category> {
     return this.categoryService.fetchOne(id);
   }
 
   @Post()
   @ApiOperation({ summary: 'Add new category (admin only).' })
   @ApiCreatedResponse({ type: Category })
-  insertOne(@Body() dto: CreateCategoryDto): Promise<Category> {
+  insertOne(
+    @Body(reqBodyValidatePipe()) dto: CreateCategoryDto,
+  ): Promise<Category> {
     return this.categoryService.insertOne(dto);
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Update category information by id (admin only).' })
   @ApiOkResponse({ type: Category })
+  @ApiParamIdError('Category')
   updateOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateCategoryDto,
+    @Param('id', uuidValidatePipe('')) id: string,
+    @Body(reqBodyValidatePipe()) dto: UpdateCategoryDto,
   ): Promise<Category> {
     return this.categoryService.updateOne(id, dto);
   }
@@ -73,8 +85,11 @@ export class CategoriesController {
     summary: 'Delete category. Set categoryId to null on associated articles.',
   })
   @ApiNoContentResponse()
+  @ApiParamIdError('Category')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  deleteOne(
+    @Param('id', uuidValidatePipe('Category')) id: string,
+  ): Promise<void> {
     return this.categoryService.deleteOne(id);
   }
 }

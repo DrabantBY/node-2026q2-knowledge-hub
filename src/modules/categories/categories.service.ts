@@ -9,6 +9,7 @@ import type {
   UpdateCategoryDto,
 } from './dto';
 import { Category } from './entities';
+import { idInvalidMessage } from '@common/utils';
 
 @Injectable()
 export class CategoriesService extends BaseEntityService<Category> {
@@ -32,7 +33,7 @@ export class CategoriesService extends BaseEntityService<Category> {
   async fetchOne(id: string): Promise<Category> {
     const category = this.#store.find((category) => category.id === id);
     if (!category) {
-      throw new NotFoundException("Category doesn't exist");
+      throw new NotFoundException(idInvalidMessage('Category'));
     }
     return category;
   }

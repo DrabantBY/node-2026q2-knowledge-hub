@@ -9,7 +9,7 @@ import {
 class PaginationResponseDto {
   @ApiProperty({
     type: 'integer',
-    example: 100,
+    example: 1,
   })
   total: number;
 

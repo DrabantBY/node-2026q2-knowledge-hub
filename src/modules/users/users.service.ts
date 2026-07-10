@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { ArticlesService } from '@articles/articles.service';
 import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
+import { idNotFoundMessage } from '@common/utils';
 import {
   ForbiddenException,
   Injectable,
@@ -36,7 +37,7 @@ export class UsersService extends BaseEntityService<User> {
 
   async fetchOne(id: string): Promise<User> {
     const user = this.#state.find((user) => user.id === id);
-    if (!user) throw new NotFoundException("User doesn't exist");
+    if (!user) throw new NotFoundException(idNotFoundMessage('User'));
     return user;
   }
 

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
+import { idNotFoundMessage } from '@common/utils';
 import {
   Injectable,
   NotFoundException,
@@ -33,7 +34,7 @@ export class CommentsService extends BaseEntityService<Comment> {
 
   async fetchOne(id: string): Promise<Comment> {
     const comment = this.#store.find((comment) => comment.id === id);
-    if (!comment) throw new NotFoundException("Comment doesn't exist");
+    if (!comment) throw new NotFoundException(idNotFoundMessage('Comment'));
     return comment;
   }
 

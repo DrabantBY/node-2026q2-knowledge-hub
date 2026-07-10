@@ -31,6 +31,6 @@ export const ApiQueryParams = (sortKeys: Record<string, string>) =>
       required: false,
       type: 'integer',
       description: 'Amount entities per page',
-      example: 10,
+      example: 1,
     }),
   );

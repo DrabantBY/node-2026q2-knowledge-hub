@@ -10,6 +10,7 @@ import type {
   UpdateArticleDto,
 } from './dto';
 import { Article } from './entities';
+import { idNotFoundMessage } from '@common/utils';
 
 @Injectable()
 export class ArticlesService extends BaseEntityService<Article> {
@@ -41,7 +42,7 @@ export class ArticlesService extends BaseEntityService<Article> {
   async fetchOne(id: string): Promise<Article> {
     const article = this.#store.find((article) => article.id === id);
     if (!article) {
-      throw new NotFoundException("Article doesn't exist");
+      throw new NotFoundException(idNotFoundMessage('Article'));
     }
     return article;
   }
