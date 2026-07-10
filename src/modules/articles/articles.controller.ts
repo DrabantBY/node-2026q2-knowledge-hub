@@ -24,7 +24,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginationResponse, ApiParamIdError } from '@swagger/decorators';
+import { ApiErrorResponse, ApiPaginationResponse } from '@swagger/decorators';
 import { ArticlesService } from './articles.service';
 import { ApiArticleQueryParams } from './decorators';
 import {
@@ -46,6 +46,7 @@ export class ArticlesController {
   })
   @ApiArticleQueryParams()
   @ApiPaginationResponse(Article)
+  @ApiErrorResponse({ withQueryError: true })
   fetchAll(
     @Query(reqQueryValidatePipe()) searchParams: ArticleSearchParamsDto,
   ): Promise<PaginationResponse<Article>> {
@@ -55,7 +56,7 @@ export class ArticlesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single article by id.' })
   @ApiOkResponse({ type: Article })
-  @ApiParamIdError('Article')
+  @ApiErrorResponse({ entity: 'Article', withUuidError: true })
   fetchOne(
     @Param('id', uuidValidatePipe('Article')) id: string,
   ): Promise<Article> {
@@ -67,6 +68,7 @@ export class ArticlesController {
     summary: 'Add new article (editor can create own, admin can create any).',
   })
   @ApiCreatedResponse({ type: Article })
+  @ApiErrorResponse({ withBodyError: true })
   insertOne(
     @Body(reqBodyValidatePipe()) dto: CreateArticleDto,
   ): Promise<Article> {
@@ -79,7 +81,11 @@ export class ArticlesController {
       'Update article by id (editor can update own, admin can update any).',
   })
   @ApiOkResponse({ type: Article })
-  @ApiParamIdError('Article')
+  @ApiErrorResponse({
+    entity: 'Article',
+    withUuidError: true,
+    withBodyError: true,
+  })
   updateOne(
     @Param('id', uuidValidatePipe('Article')) id: string,
     @Body(reqBodyValidatePipe()) dto: UpdateArticleDto,
@@ -92,7 +98,10 @@ export class ArticlesController {
     summary: 'Delete article. Delete all associated comments (admin only).',
   })
   @ApiNoContentResponse()
-  @ApiParamIdError('Article')
+  @ApiErrorResponse({
+    entity: 'Article',
+    withUuidError: true,
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteOne(
     @Param('id', uuidValidatePipe('Article')) id: string,

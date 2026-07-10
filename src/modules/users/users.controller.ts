@@ -20,14 +20,15 @@ import {
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import {
+  ApiErrorResponse,
   ApiPaginationResponse,
-  ApiParamIdError,
   ApiQueryParams,
 } from '@swagger/decorators';
 import { USER_SORT_KEY } from './const';
@@ -45,6 +46,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get all users.' })
   @ApiQueryParams(USER_SORT_KEY)
   @ApiPaginationResponse(User)
+  @ApiErrorResponse({ withQueryError: true })
   fetchAll(
     @Query(reqQueryValidatePipe()) searchParams: UserSearchParamsDto,
   ): Promise<PaginationResponse<User>> {
@@ -54,7 +56,7 @@ export class UsersController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single user by id.' })
   @ApiOkResponse({ type: User })
-  @ApiParamIdError('User')
+  @ApiErrorResponse({ entity: 'User', withUuidError: true })
   fetchOne(@Param('id', uuidValidatePipe('User')) id: string): Promise<User> {
     return this.userService.fetchOne(id);
   }
@@ -62,6 +64,7 @@ export class UsersController {
   @Post()
   @ApiOperation({ summary: 'Add new user (admin only).' })
   @ApiCreatedResponse({ type: User })
+  @ApiErrorResponse({ withBodyError: true })
   insertOne(@Body(reqBodyValidatePipe()) dto: CreateUserDto): Promise<User> {
     return this.userService.insertOne(dto);
   }
@@ -69,7 +72,14 @@ export class UsersController {
   @Put(':id')
   @ApiOperation({ summary: "Update user's password by id." })
   @ApiOkResponse({ type: User })
-  @ApiParamIdError('User')
+  @ApiErrorResponse({
+    entity: 'User',
+    withUuidError: true,
+    withBodyError: true,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+  })
   updateOne(
     @Param('id', uuidValidatePipe('User')) id: string,
     @Body(reqBodyValidatePipe()) dto: UpdatePasswordDto,
@@ -83,7 +93,7 @@ export class UsersController {
       "Delete user by id. Set authorId to null on articles, delete user's comments.",
   })
   @ApiNoContentResponse()
-  @ApiParamIdError('User')
+  @ApiErrorResponse({ entity: 'User', withUuidError: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteOne(@Param('id', uuidValidatePipe('User')) id: string): Promise<void> {
     return this.userService.deleteOne(id);

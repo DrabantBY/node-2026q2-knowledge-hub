@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { ArticlesService } from '@articles/articles.service';
 import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
+import { idInvalidMessage } from '@common/utils';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type {
   CategorySearchParamsDto,
@@ -9,7 +10,6 @@ import type {
   UpdateCategoryDto,
 } from './dto';
 import { Category } from './entities';
-import { idInvalidMessage } from '@common/utils';
 
 @Injectable()
 export class CategoriesService extends BaseEntityService<Category> {

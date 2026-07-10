@@ -30,7 +30,7 @@ export const ApiQueryParams = (sortKeys: Record<string, string>) =>
       name: 'limit',
       required: false,
       type: 'integer',
-      description: 'Amount entities per page',
+      description: 'Entities per page',
       example: 1,
     }),
   );

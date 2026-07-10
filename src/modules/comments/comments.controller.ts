@@ -22,7 +22,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginationResponse, ApiParamIdError } from '@swagger/decorators';
+import { ApiErrorResponse, ApiPaginationResponse } from '@swagger/decorators';
 import { CommentsService } from './comments.service';
 import { ApiCommentQueryParams } from './decorators';
 import { CommentSearchParamsDto, CreateCommentDto } from './dto';
@@ -40,6 +40,9 @@ export class CommentsController {
   })
   @ApiCommentQueryParams()
   @ApiPaginationResponse(Comment)
+  @ApiErrorResponse({
+    withQueryError: true,
+  })
   fetchList(
     @Query(reqQueryValidatePipe()) searchParams: CommentSearchParamsDto,
   ): Promise<PaginationResponse<Comment>> {
@@ -49,7 +52,10 @@ export class CommentsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single comment by id.' })
   @ApiOkResponse({ type: Comment })
-  @ApiParamIdError('Comment')
+  @ApiErrorResponse({
+    entity: 'Comment',
+    withUuidError: true,
+  })
   fetchOne(
     @Param('id', uuidValidatePipe('Comment')) id: string,
   ): Promise<Comment> {
@@ -62,6 +68,9 @@ export class CommentsController {
       'Add comment to article (editor can create own, admin can create any).',
   })
   @ApiCreatedResponse({ type: Comment })
+  @ApiErrorResponse({
+    withBodyError: true,
+  })
   insertOne(
     @Body(reqBodyValidatePipe()) dto: CreateCommentDto,
   ): Promise<Comment> {
@@ -73,7 +82,10 @@ export class CommentsController {
     summary: 'Delete comment (admin can delete any, editor can delete own).',
   })
   @ApiNoContentResponse()
-  @ApiParamIdError('Comment')
+  @ApiErrorResponse({
+    entity: 'Comment',
+    withUuidError: true,
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteOne(
     @Param('id', uuidValidatePipe('Comment')) id: string,

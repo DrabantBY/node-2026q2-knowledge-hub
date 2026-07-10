@@ -24,8 +24,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
+  ApiErrorResponse,
   ApiPaginationResponse,
-  ApiParamIdError,
   ApiQueryParams,
 } from '@swagger/decorators';
 import { CategoriesService } from './categories.service';
@@ -46,6 +46,9 @@ export class CategoriesController {
   @ApiOperation({ summary: 'Get all categories.' })
   @ApiQueryParams(CATEGORY_SORT_KEY)
   @ApiPaginationResponse(Category)
+  @ApiErrorResponse({
+    withQueryError: true,
+  })
   fetchAll(
     @Query(reqQueryValidatePipe()) searchParams: CategorySearchParamsDto,
   ): Promise<PaginationResponse<Category>> {
@@ -55,7 +58,10 @@ export class CategoriesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single category by id.' })
   @ApiOkResponse({ type: Category })
-  @ApiParamIdError('Category')
+  @ApiErrorResponse({
+    entity: 'Category',
+    withUuidError: true,
+  })
   fetchOne(@Param('id', uuidValidatePipe('')) id: string): Promise<Category> {
     return this.categoryService.fetchOne(id);
   }
@@ -63,6 +69,9 @@ export class CategoriesController {
   @Post()
   @ApiOperation({ summary: 'Add new category (admin only).' })
   @ApiCreatedResponse({ type: Category })
+  @ApiErrorResponse({
+    withBodyError: true,
+  })
   insertOne(
     @Body(reqBodyValidatePipe()) dto: CreateCategoryDto,
   ): Promise<Category> {
@@ -72,7 +81,11 @@ export class CategoriesController {
   @Put(':id')
   @ApiOperation({ summary: 'Update category information by id (admin only).' })
   @ApiOkResponse({ type: Category })
-  @ApiParamIdError('Category')
+  @ApiErrorResponse({
+    entity: 'Category',
+    withUuidError: true,
+    withBodyError: true,
+  })
   updateOne(
     @Param('id', uuidValidatePipe('')) id: string,
     @Body(reqBodyValidatePipe()) dto: UpdateCategoryDto,
@@ -85,7 +98,10 @@ export class CategoriesController {
     summary: 'Delete category. Set categoryId to null on associated articles.',
   })
   @ApiNoContentResponse()
-  @ApiParamIdError('Category')
+  @ApiErrorResponse({
+    entity: 'Category',
+    withUuidError: true,
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteOne(
     @Param('id', uuidValidatePipe('Category')) id: string,

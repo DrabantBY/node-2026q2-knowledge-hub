@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { CommentsService } from '@comments/comments.service';
 import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
+import { idNotFoundMessage } from '@common/utils';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ARTICLE_STATUS } from './const';
 import type {
@@ -10,7 +11,6 @@ import type {
   UpdateArticleDto,
 } from './dto';
 import { Article } from './entities';
-import { idNotFoundMessage } from '@common/utils';
 
 @Injectable()
 export class ArticlesService extends BaseEntityService<Article> {
