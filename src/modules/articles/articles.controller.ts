@@ -55,7 +55,7 @@ export class ArticlesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get single article by id.' })
-  @ApiOkResponse({ type: Article })
+  @ApiOkResponse({ type: Article, description: 'Ok' })
   @ApiErrorResponse({ entity: 'Article', withUuidError: true })
   fetchOne(
     @Param('id', uuidValidatePipe('Article')) id: string,
@@ -67,7 +67,7 @@ export class ArticlesController {
   @ApiOperation({
     summary: 'Add new article (editor can create own, admin can create any).',
   })
-  @ApiCreatedResponse({ type: Article })
+  @ApiCreatedResponse({ type: Article, description: 'Created' })
   @ApiErrorResponse({ withBodyError: true })
   insertOne(
     @Body(reqBodyValidatePipe()) dto: CreateArticleDto,
@@ -80,7 +80,7 @@ export class ArticlesController {
     summary:
       'Update article by id (editor can update own, admin can update any).',
   })
-  @ApiOkResponse({ type: Article })
+  @ApiOkResponse({ type: Article, description: 'Ok' })
   @ApiErrorResponse({
     entity: 'Article',
     withUuidError: true,
@@ -97,7 +97,7 @@ export class ArticlesController {
   @ApiOperation({
     summary: 'Delete article. Delete all associated comments (admin only).',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'No Content' })
   @ApiErrorResponse({
     entity: 'Article',
     withUuidError: true,

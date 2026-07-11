@@ -55,7 +55,7 @@ export class UsersController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get single user by id.' })
-  @ApiOkResponse({ type: User })
+  @ApiOkResponse({ type: User, description: 'Ok' })
   @ApiErrorResponse({ entity: 'User', withUuidError: true })
   fetchOne(@Param('id', uuidValidatePipe('User')) id: string): Promise<User> {
     return this.userService.fetchOne(id);
@@ -63,7 +63,7 @@ export class UsersController {
 
   @Post()
   @ApiOperation({ summary: 'Add new user (admin only).' })
-  @ApiCreatedResponse({ type: User })
+  @ApiCreatedResponse({ type: User, description: 'Created' })
   @ApiErrorResponse({ withBodyError: true })
   insertOne(@Body(reqBodyValidatePipe()) dto: CreateUserDto): Promise<User> {
     return this.userService.insertOne(dto);
@@ -71,7 +71,7 @@ export class UsersController {
 
   @Put(':id')
   @ApiOperation({ summary: "Update user's password by id." })
-  @ApiOkResponse({ type: User })
+  @ApiOkResponse({ type: User, description: 'Ok' })
   @ApiErrorResponse({
     entity: 'User',
     withUuidError: true,
@@ -92,7 +92,7 @@ export class UsersController {
     summary:
       "Delete user by id. Set authorId to null on articles, delete user's comments.",
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'No Content' })
   @ApiErrorResponse({ entity: 'User', withUuidError: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteOne(@Param('id', uuidValidatePipe('User')) id: string): Promise<void> {

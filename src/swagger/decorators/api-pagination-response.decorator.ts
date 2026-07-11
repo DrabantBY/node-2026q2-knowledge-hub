@@ -30,6 +30,7 @@ export const ApiPaginationResponse = <T extends Type<unknown>>(model: T) =>
   applyDecorators(
     ApiExtraModels(PaginationResponseDto, model),
     ApiOkResponse({
+      description: 'Ok',
       schema: {
         allOf: [
           {

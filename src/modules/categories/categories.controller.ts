@@ -57,7 +57,7 @@ export class CategoriesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get single category by id.' })
-  @ApiOkResponse({ type: Category })
+  @ApiOkResponse({ type: Category, description: 'Ok' })
   @ApiErrorResponse({
     entity: 'Category',
     withUuidError: true,
@@ -68,7 +68,7 @@ export class CategoriesController {
 
   @Post()
   @ApiOperation({ summary: 'Add new category (admin only).' })
-  @ApiCreatedResponse({ type: Category })
+  @ApiCreatedResponse({ type: Category, description: 'Created' })
   @ApiErrorResponse({
     withBodyError: true,
   })
@@ -80,7 +80,7 @@ export class CategoriesController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update category information by id (admin only).' })
-  @ApiOkResponse({ type: Category })
+  @ApiOkResponse({ type: Category, description: 'Ok' })
   @ApiErrorResponse({
     entity: 'Category',
     withUuidError: true,
@@ -97,7 +97,7 @@ export class CategoriesController {
   @ApiOperation({
     summary: 'Delete category. Set categoryId to null on associated articles.',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'No Content' })
   @ApiErrorResponse({
     entity: 'Category',
     withUuidError: true,

@@ -21,6 +21,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { ApiErrorResponse, ApiPaginationResponse } from '@swagger/decorators';
 import { CommentsService } from './comments.service';
@@ -51,7 +52,7 @@ export class CommentsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get single comment by id.' })
-  @ApiOkResponse({ type: Comment })
+  @ApiOkResponse({ type: Comment, description: 'Ok' })
   @ApiErrorResponse({
     entity: 'Comment',
     withUuidError: true,
@@ -67,7 +68,8 @@ export class CommentsController {
     summary:
       'Add comment to article (editor can create own, admin can create any).',
   })
-  @ApiCreatedResponse({ type: Comment })
+  @ApiCreatedResponse({ type: Comment, description: 'Created' })
+  @ApiUnprocessableEntityResponse({ description: 'Unprocessable Entity' })
   @ApiErrorResponse({
     withBodyError: true,
   })
@@ -81,7 +83,7 @@ export class CommentsController {
   @ApiOperation({
     summary: 'Delete comment (admin can delete any, editor can delete own).',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'No Content' })
   @ApiErrorResponse({
     entity: 'Comment',
     withUuidError: true,
