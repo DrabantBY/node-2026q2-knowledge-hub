@@ -69,7 +69,9 @@ export class CommentsService extends BaseEntityService<Comment> {
     this.store = this.store.filter(({ id }) => comment.id !== id);
   }
 
-  async deleteByArticleId(id: string): Promise<void> {
-    this.store = this.store.filter(({ articleId }) => articleId !== id);
+  async deleteById(id: string): Promise<void> {
+    this.store = this.store.filter(
+      ({ authorId, articleId }) => articleId !== id && authorId !== id,
+    );
   }
 }
