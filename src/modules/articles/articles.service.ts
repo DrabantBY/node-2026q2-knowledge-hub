@@ -101,7 +101,7 @@ export class ArticlesService extends BaseEntityService<Article> {
   }
 
   async deleteComment(id: string): Promise<void> {
-    this.commentService.deleteById(id);
+    await this.commentService.deleteByArticleId(id);
   }
 
   async hasArticleId(articleId: string): Promise<boolean> {
