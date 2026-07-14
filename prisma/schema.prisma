@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(uuid())
+  login String @unique
+  password String
+  role Role @default(VIEWER)
+  articles Article[]
+  comments Comment[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Article {
+  id String @id @default(uuid())
+  title String
+  content String
+  status Status @default(DRAFT)
+  user User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId String? @map("author_id")
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId String? @map("category_id")
+  comments Comment[]
+  tags Tag[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+
+model Category {
+  id String @id @default(uuid())
+  name String
+  description String
+  articles Article[]
+}
+
+model Comment {
+  id String @id @default(uuid())
+  content String
+  user User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String @map("author_id")
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String @map("article_id")
+  createdAt DateTime @default(now()) @map("created_at")
+}
+
+model Tag {
+  id String @id @default(uuid())
+  name String @unique
+  articles Article[]
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
