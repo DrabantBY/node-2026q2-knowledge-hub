@@ -1,5 +1,5 @@
+import { Status } from '@generated/enums';
 import { ApiProperty } from '@nestjs/swagger';
-import { ARTICLE_STATUS, type ArticleStatus } from '../const';
 
 export class Article {
   @ApiProperty({ type: String, format: 'uuid' })
@@ -16,11 +16,11 @@ export class Article {
   content: string;
 
   @ApiProperty({
-    enum: Object.values(ARTICLE_STATUS),
-    example: ARTICLE_STATUS.DRAFT,
-    default: ARTICLE_STATUS.DRAFT,
+    enum: Object.values(Status),
+    example: Status.DRAFT,
+    default: Status.DRAFT,
   })
-  status: ArticleStatus;
+  status: Status;
 
   @ApiProperty({
     type: String,

@@ -1,3 +1,4 @@
+import { Status } from '@generated/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
@@ -7,7 +8,6 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { ARTICLE_STATUS, type ArticleStatus } from '../const';
 
 export class CreateArticleDto {
   @ApiProperty({
@@ -28,13 +28,13 @@ export class CreateArticleDto {
   content: string;
 
   @ApiPropertyOptional({
-    enum: Object.values(ARTICLE_STATUS),
-    example: ARTICLE_STATUS.DRAFT,
-    default: ARTICLE_STATUS.DRAFT,
+    enum: Object.values(Status),
+    example: Status.DRAFT,
+    default: Status.DRAFT,
   })
-  @IsEnum(ARTICLE_STATUS)
+  @IsEnum(Status)
   @IsOptional()
-  status?: ArticleStatus;
+  status?: Status;
 
   @ApiPropertyOptional({
     type: String,

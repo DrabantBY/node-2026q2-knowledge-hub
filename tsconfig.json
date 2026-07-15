@@ -17,6 +17,8 @@
       "@common/*": ["src/common/*"],
       "@swagger/*": ["src/swagger/*"],
       "@users/*": ["src/modules/users/*"],
+      "@prisma": ["src/prisma/index.ts"],
+      "@generated/*": ["generated/*"],
     },
     "incremental": true,
     "skipLibCheck": true,

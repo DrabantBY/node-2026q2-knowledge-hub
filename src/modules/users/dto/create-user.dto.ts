@@ -1,6 +1,6 @@
+import { Role } from '@generated/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDefined, IsEnum, IsOptional, IsString } from 'class-validator';
-import { USER_ROLE, type UserRole } from '../const';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -21,11 +21,11 @@ export class CreateUserDto {
   password: string;
 
   @ApiPropertyOptional({
-    enum: Object.values(USER_ROLE),
-    example: USER_ROLE.VIEWER,
-    default: USER_ROLE.VIEWER,
+    enum: Object.values(Role),
+    example: Role.VIEWER,
+    default: Role.VIEWER,
   })
-  @IsEnum(USER_ROLE)
+  @IsEnum(Role)
   @IsOptional()
-  role?: UserRole;
+  role?: Role;
 }

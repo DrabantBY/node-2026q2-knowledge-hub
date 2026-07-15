@@ -1,6 +1,6 @@
+import { Role } from '@generated/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { USER_ROLE, type UserRole } from '../const';
 
 export class User {
   @ApiProperty({
@@ -16,11 +16,11 @@ export class User {
   login: string;
 
   @ApiProperty({
-    enum: Object.values(USER_ROLE),
-    example: USER_ROLE.VIEWER,
-    default: USER_ROLE.VIEWER,
+    enum: Object.values(Role),
+    example: Role.VIEWER,
+    default: Role.VIEWER,
   })
-  role: UserRole;
+  role: Role;
 
   @ApiProperty({
     type: 'integer',

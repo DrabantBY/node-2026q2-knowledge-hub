@@ -11,9 +11,16 @@ import {
   CommentsModule,
   UsersModule,
 } from './modules';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [UsersModule, ArticlesModule, CategoriesModule, CommentsModule],
+  imports: [
+    UsersModule,
+    ArticlesModule,
+    CategoriesModule,
+    CommentsModule,
+    PrismaModule,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
