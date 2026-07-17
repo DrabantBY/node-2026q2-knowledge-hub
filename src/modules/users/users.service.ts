@@ -1,14 +1,13 @@
-import { randomUUID } from 'node:crypto';
-import { ArticlesService } from '@articles/articles.service';
-import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
 import { idNotFoundMessage } from '@common/utils';
+import { Prisma } from '@generated/client';
+import { Role } from '@generated/enums';
 import {
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { USER_ROLE } from './const';
+import { PrismaService } from '@prisma';
 import type {
   CreateUserDto,
   UpdatePasswordDto,
@@ -16,13 +15,12 @@ import type {
 } from './dto';
 import { User } from './entities';
 
-@Injectable()
-export class UsersService extends BaseEntityService<User> {
-  constructor(private articleService: ArticlesService) {
-    super();
-  }
+type PrismaUser = Prisma.UserGetPayload<{ omit: { password: true } }>;
 
-  #state: User[] = [];
+@Injectable()
+export class UsersService {
+  private OMIT = { password: true };
+  constructor(private prismaService: PrismaService) {}
 
   async fetchAll({
     sortBy,
@@ -30,51 +28,98 @@ export class UsersService extends BaseEntityService<User> {
     page,
     limit,
   }: UserSearchParamsDto): Promise<PaginationResponse<User>> {
-    const list = [...this.#state];
-    this.sortBySearchParams(list, sortBy, order);
-    return this.mapToPagination(list, page, limit);
+    const orderBy: Prisma.UserOrderByWithRelationInput | undefined = sortBy
+      ? { [sortBy]: order }
+      : undefined;
+
+    const [prismaUsers, total] = await this.prismaService.$transaction([
+      this.prismaService.user.findMany({
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+        omit: this.OMIT,
+      }),
+      this.prismaService.user.count(),
+    ]);
+
+    return {
+      data: prismaUsers.map(this.mapToUser),
+      page,
+      limit,
+      total,
+    };
   }
 
   async fetchOne(id: string): Promise<User> {
-    const user = this.#state.find((user) => user.id === id);
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+      omit: this.OMIT,
+    });
+
     if (!user) throw new NotFoundException(idNotFoundMessage('User'));
-    return user;
+
+    return this.mapToUser(user);
   }
 
   async insertOne({
     login,
     password,
-    role = USER_ROLE.VIEWER,
+    role = Role.VIEWER,
   }: CreateUserDto): Promise<User> {
-    const date = Date.now();
-    const user: User = new User({
-      id: randomUUID(),
-      login,
-      password,
-      role,
-      createdAt: date,
-      updatedAt: date,
+    const user = await this.prismaService.user.create({
+      data: {
+        login,
+        password,
+        role,
+      },
+      omit: this.OMIT,
     });
-    this.#state.push(user);
-    return user;
+
+    return this.mapToUser(user);
   }
 
   async updateOne(
     id: string,
     { oldPassword, newPassword }: UpdatePasswordDto,
   ): Promise<User> {
-    const user = await this.fetchOne(id);
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) throw new NotFoundException(idNotFoundMessage('User'));
+
     if (user.password !== oldPassword)
       throw new ForbiddenException(`Old password is wrong`);
-    user.password = newPassword;
-    user.updatedAt = Date.now();
-    return user;
+
+    const newUser = await this.prismaService.user.update({
+      where: { id },
+      data: { password: newPassword },
+      omit: this.OMIT,
+    });
+
+    return this.mapToUser(newUser);
   }
 
   async deleteOne(id: string): Promise<void> {
-    const user = await this.fetchOne(id);
-    this.#state = this.#state.filter(({ id }) => user.id !== id);
-    await this.articleService.resetAuthorId(id);
-    await this.articleService.deleteComment(id);
+    try {
+      await this.prismaService.user.delete({
+        where: { id },
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      )
+        throw new NotFoundException(idNotFoundMessage('User'));
+      else throw err;
+    }
+  }
+
+  private mapToUser(user: PrismaUser): User {
+    return new User({
+      ...user,
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
+    });
   }
 }

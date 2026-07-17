@@ -1,4 +1,4 @@
-import { SORT_ORDER } from '@common/const';
+import { Prisma } from '@generated/client';
 import { applyDecorators } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
 
@@ -14,7 +14,7 @@ export const ApiQueryParams = (sortKeys: Record<string, string>) =>
     ApiQuery({
       name: 'order',
       required: false,
-      enum: SORT_ORDER,
+      enum: Prisma.SortOrder,
       description: 'Sort by order',
     }),
 

@@ -1,4 +1,5 @@
-import { ARTICLE_SORT_KEY, ARTICLE_STATUS } from '@articles/const';
+import { ARTICLE_SORT_KEY } from '@articles/const';
+import { Status } from '@generated/enums';
 import { applyDecorators } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
 import { ApiQueryParams } from '@swagger/decorators';
@@ -8,7 +9,7 @@ export const ApiArticleQueryParams = () =>
     ApiQuery({
       name: 'status',
       required: false,
-      enum: ARTICLE_STATUS,
+      enum: Status,
       description: 'Filter by status',
     }),
     ApiQuery({

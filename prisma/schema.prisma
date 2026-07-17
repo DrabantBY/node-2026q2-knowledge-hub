@@ -16,6 +16,8 @@ model User {
   comments Comment[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
 }
 
 model Article {
@@ -31,6 +33,8 @@ model Article {
   tags Tag[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("articles")
 }
 
 
@@ -39,6 +43,8 @@ model Category {
   name String
   description String
   articles Article[]
+
+  @@map("categories")
 }
 
 model Comment {
@@ -49,12 +55,16 @@ model Comment {
   article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
   articleId String @map("article_id")
   createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("comments")
 }
 
 model Tag {
   id String @id @default(uuid())
   name String @unique
   articles Article[]
+
+  @@map("tags")
 }
 
 enum Role {

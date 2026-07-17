@@ -1,6 +1,6 @@
+import { Prisma } from '@generated/client';
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
-import { SORT_ORDER, type SortOrder } from '../const';
 
 export const baseSearchParamsDtoFactory = <T extends Record<string, string>>(
   obj: T,
@@ -10,9 +10,9 @@ export const baseSearchParamsDtoFactory = <T extends Record<string, string>>(
     @IsOptional()
     sortBy?: T[keyof T];
 
-    @IsEnum(SORT_ORDER)
+    @IsEnum(Prisma.SortOrder)
     @IsOptional()
-    order?: SortOrder;
+    order?: Prisma.SortOrder;
 
     @Type(() => Number)
     @IsInt()
