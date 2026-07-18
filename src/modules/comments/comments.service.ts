@@ -1,28 +1,19 @@
-import { randomUUID } from 'node:crypto';
-import { ArticlesService } from '@articles/articles.service';
-import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
 import { idNotFoundMessage } from '@common/utils';
+import { Prisma } from '@generated/client';
+import type { CommentModel } from '@generated/models';
 import {
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { PrismaService } from '@prisma';
 import type { CommentSearchParamsDto, CreateCommentDto } from './dto';
 import { Comment } from './entities';
 
 @Injectable()
-export class CommentsService extends BaseEntityService<Comment> {
-  constructor(
-    @Inject(forwardRef(() => ArticlesService))
-    private articlesService: ArticlesService,
-  ) {
-    super();
-  }
-
-  private store: Comment[] = [];
+export class CommentsService {
+  constructor(private prismaService: PrismaService) {}
 
   async fetchList({
     articleId,
@@ -31,47 +22,74 @@ export class CommentsService extends BaseEntityService<Comment> {
     page,
     limit,
   }: CommentSearchParamsDto): Promise<PaginationResponse<Comment>> {
-    const list = this.store.filter(
-      (comment) => comment.articleId === articleId,
-    );
-    this.sortBySearchParams(list, sortBy, order);
-    return this.mapToPagination(list, page, limit);
+    const orderBy: Prisma.CommentOrderByWithRelationInput | undefined =
+      sortBy && order ? { [sortBy]: order } : undefined;
+
+    const [comments, total] = await this.prismaService.$transaction([
+      this.prismaService.comment.findMany({
+        where: { articleId },
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prismaService.comment.count({ where: { articleId } }),
+    ]);
+
+    return {
+      data: comments.map(this.mapToComment),
+      page,
+      limit,
+      total,
+    };
   }
 
   async fetchOne(id: string): Promise<Comment> {
-    const comment = this.store.find((comment) => comment.id === id);
-    if (!comment) throw new NotFoundException(idNotFoundMessage('Comment'));
-    return comment;
-  }
-
-  async insertOne(dto: CreateCommentDto): Promise<Comment> {
-    const isArticleExist = await this.articlesService.hasArticleId(
-      dto.articleId,
-    );
-    if (!isArticleExist)
-      throw new UnprocessableEntityException(
-        "Article id reference doesn't exist",
-      );
-
-    const comment = new Comment({
-      id: randomUUID(),
-      ...dto,
-      authorId: dto.authorId ?? null,
-      createdAt: Date.now(),
+    const comment = await this.prismaService.comment.findUnique({
+      where: { id },
     });
 
-    this.store.push(comment);
-    return comment;
+    if (!comment) throw new NotFoundException(idNotFoundMessage('Comment'));
+
+    return this.mapToComment(comment);
+  }
+
+  async insertOne(data: CreateCommentDto): Promise<Comment> {
+    try {
+      const comment = await this.prismaService.comment.create({
+        data,
+      });
+      return this.mapToComment(comment);
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2003'
+      )
+        throw new UnprocessableEntityException(
+          "ArticleId or authorId reference doesn't exist",
+        );
+      else throw err;
+    }
   }
 
   async deleteOne(id: string): Promise<void> {
-    const comment = await this.fetchOne(id);
-    this.store = this.store.filter(({ id }) => comment.id !== id);
+    try {
+      await this.prismaService.comment.delete({
+        where: { id },
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      )
+        throw new NotFoundException(idNotFoundMessage('Comment'));
+      else throw err;
+    }
   }
 
-  async deleteById(id: string): Promise<void> {
-    this.store = this.store.filter(
-      ({ authorId, articleId }) => articleId !== id && authorId !== id,
-    );
+  private mapToComment(comment: CommentModel): Comment {
+    return new Comment({
+      ...comment,
+      createdAt: comment.createdAt.getTime(),
+    });
   }
 }

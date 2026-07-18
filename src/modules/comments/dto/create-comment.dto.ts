@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDefined, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsDefined, IsString, IsUUID } from 'class-validator';
 
 export class CreateCommentDto {
   @ApiProperty({
@@ -27,6 +27,6 @@ export class CreateCommentDto {
     default: null,
   })
   @IsUUID()
-  @IsOptional()
-  authorId?: string | null;
+  @IsDefined()
+  authorId: string;
 }

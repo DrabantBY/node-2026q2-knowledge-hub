@@ -28,9 +28,8 @@ export class UsersService {
     page,
     limit,
   }: UserSearchParamsDto): Promise<PaginationResponse<User>> {
-    const orderBy: Prisma.UserOrderByWithRelationInput | undefined = sortBy
-      ? { [sortBy]: order }
-      : undefined;
+    const orderBy: Prisma.UserOrderByWithRelationInput | undefined =
+      sortBy && order ? { [sortBy]: order } : undefined;
 
     const [prismaUsers, total] = await this.prismaService.$transaction([
       this.prismaService.user.findMany({

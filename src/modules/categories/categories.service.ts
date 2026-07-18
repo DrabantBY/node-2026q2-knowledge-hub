@@ -1,23 +1,18 @@
-import { randomUUID } from 'node:crypto';
-import { ArticlesService } from '@articles/articles.service';
-import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
-import { idInvalidMessage } from '@common/utils';
+import { idNotFoundMessage } from '@common/utils';
+import { Prisma } from '@generated/client';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '@prisma';
 import type {
   CategorySearchParamsDto,
   CreateCategoryDto,
   UpdateCategoryDto,
 } from './dto';
-import { Category } from './entities';
+import type { Category } from './entities';
 
 @Injectable()
-export class CategoriesService extends BaseEntityService<Category> {
-  constructor(private articleService: ArticlesService) {
-    super();
-  }
-
-  #store: Category[] = [];
+export class CategoriesService {
+  constructor(private prismaService: PrismaService) {}
 
   async fetchAll({
     sortBy,
@@ -25,40 +20,72 @@ export class CategoriesService extends BaseEntityService<Category> {
     page,
     limit,
   }: CategorySearchParamsDto): Promise<PaginationResponse<Category>> {
-    const list = [...this.#store];
-    this.sortBySearchParams(list, sortBy, order);
-    return this.mapToPagination(list, page, limit);
+    const orderBy: Prisma.CategoryOrderByWithRelationInput | undefined =
+      sortBy && order ? { [sortBy]: order } : undefined;
+
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.category.findMany({
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prismaService.category.count(),
+    ]);
+
+    return {
+      data,
+      page,
+      limit,
+      total,
+    };
   }
 
   async fetchOne(id: string): Promise<Category> {
-    const category = this.#store.find((category) => category.id === id);
+    const category = await this.prismaService.category.findUnique({
+      where: { id },
+    });
+
     if (!category) {
-      throw new NotFoundException(idInvalidMessage('Category'));
+      throw new NotFoundException(idNotFoundMessage('Category'));
     }
+
     return category;
   }
 
-  async insertOne(dto: CreateCategoryDto): Promise<Category> {
-    const category = new Category({
-      id: randomUUID(),
-      ...dto,
+  async insertOne(data: CreateCategoryDto): Promise<Category> {
+    return this.prismaService.category.create({
+      data,
     });
-    this.#store.push(category);
-    return category;
   }
 
   async updateOne(id: string, dto: UpdateCategoryDto): Promise<Category> {
-    const oldCategory = await this.fetchOne(id);
-    const newCategory = { ...oldCategory, ...dto };
-    this.#store = this.#store.map((category) =>
-      category.id === oldCategory.id ? newCategory : category,
-    );
-    return newCategory;
+    try {
+      return this.prismaService.category.update({
+        where: { id },
+        data: dto,
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2005'
+      )
+        throw new NotFoundException(idNotFoundMessage('Category'));
+      else throw err;
+    }
   }
 
   async deleteOne(id: string): Promise<void> {
-    const category = await this.fetchOne(id);
-    this.#store = this.#store.filter(({ id }) => category.id !== id);
-    await this.articleService.resetCategoryId(id);
+    try {
+      await this.prismaService.category.delete({
+        where: { id },
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2005'
+      )
+        throw new NotFoundException(idNotFoundMessage('Category'));
+      else throw err;
+    }
   }
 }

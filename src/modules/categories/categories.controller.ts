@@ -62,7 +62,9 @@ export class CategoriesController {
     entity: 'Category',
     withUuidError: true,
   })
-  fetchOne(@Param('id', uuidValidatePipe('')) id: string): Promise<Category> {
+  fetchOne(
+    @Param('id', uuidValidatePipe('Category')) id: string,
+  ): Promise<Category> {
     return this.categoryService.fetchOne(id);
   }
 
@@ -87,7 +89,7 @@ export class CategoriesController {
     withBodyError: true,
   })
   updateOne(
-    @Param('id', uuidValidatePipe('')) id: string,
+    @Param('id', uuidValidatePipe('Category')) id: string,
     @Body(reqBodyValidatePipe()) dto: UpdateCategoryDto,
   ): Promise<Category> {
     return this.categoryService.updateOne(id, dto);
