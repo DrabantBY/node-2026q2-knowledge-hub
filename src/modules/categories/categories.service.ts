@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { ArticlesService } from '@articles/articles.service';
 import { BaseEntityService } from '@common/services';
 import type { PaginationResponse } from '@common/types';
-import { idInvalidMessage } from '@common/utils';
+import { idNotFoundMessage } from '@common/utils';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type {
   CategorySearchParamsDto,
@@ -33,7 +33,7 @@ export class CategoriesService extends BaseEntityService<Category> {
   async fetchOne(id: string): Promise<Category> {
     const category = this.#store.find((category) => category.id === id);
     if (!category) {
-      throw new NotFoundException(idInvalidMessage('Category'));
+      throw new NotFoundException(idNotFoundMessage('Category'));
     }
     return category;
   }
