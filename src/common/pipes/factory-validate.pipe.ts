@@ -16,8 +16,6 @@ const parseValidationError = (
 
   const isDefined = Object.keys(error.constraints ?? {}).includes('isDefined');
 
-  console.log(Object.keys(error.constraints ?? {}));
-
   return isDefined
     ? requiredErrCallback(error.property)
     : invalidErrCallback(error.property);
