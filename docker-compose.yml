@@ -19,15 +19,15 @@ services:
       - knowledge-hub-network
     restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:4000/ || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:4000"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 10s
 
   db:
     image: postgres:16-alpine
-    container_name: knowledge-hub-db
+    container_name: knowledge-hub-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -40,11 +40,11 @@ services:
       - knowledge-hub-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 5s
+      retries: 3
+      start_period: 10s
 
   adminer:
     image: adminer:latest
@@ -54,7 +54,8 @@ services:
     networks:
       - knowledge-hub-network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     profiles:
       - debug
 
