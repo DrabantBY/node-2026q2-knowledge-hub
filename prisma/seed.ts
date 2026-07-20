@@ -1,6 +1,6 @@
-import { PrismaPg } from '@prisma/adapter-pg';
-import { buildDataUrl } from '../build-data-url';
-import { PrismaClient } from '../generated/client';
+import 'dotenv/config';
+import { PrismaService } from '../src/prisma';
+
 import {
   ARTICLES_DATA,
   CATEGORIES_DATA,
@@ -9,8 +9,7 @@ import {
   USERS_DATA,
 } from './data';
 
-const adapter = new PrismaPg({ connectionString: buildDataUrl() });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaService();
 
 async function runSeed() {
   console.log('🌱 Seeding started...');
