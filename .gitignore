@@ -40,6 +40,4 @@ lerna-debug.log*
 !.env.example
 
 #Prisma
-/generated
-
-/generated/prisma
+src/generated/
