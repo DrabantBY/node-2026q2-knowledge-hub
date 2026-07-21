@@ -28,10 +28,11 @@ export class ArticlesService {
     limit,
     page,
   }: ArticleSearchParamsDto): Promise<PaginationResponse<Article>> {
-    const where: Prisma.ArticleWhereInput = {};
-    where.status = status;
-    where.categoryId = categoryId;
-    where.tags = tag ? { some: { name: tag } } : undefined;
+    const where: Prisma.ArticleWhereInput = {
+      status,
+      categoryId,
+      tags: tag ? { some: { name: tag } } : undefined,
+    };
 
     const orderBy: Prisma.ArticleOrderByWithRelationInput | undefined =
       sortBy && order ? { [sortBy]: order } : undefined;
