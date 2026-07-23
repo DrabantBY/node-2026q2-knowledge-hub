@@ -1,4 +1,4 @@
-import { Status } from '../../src/generated/prisma/enums';
+import { Status } from '@generated/enums';
 
 export const ARTICLES_DATA = [
   {

@@ -18,7 +18,7 @@
       "@swagger/*": ["src/swagger/*"],
       "@users/*": ["src/modules/users/*"],
       "@prisma": ["src/prisma"],
-      "@generated/*": ["src/generated/prisma/*"],
+      "@generated/*": ["prisma/generated/*"],
     },
     "incremental": true,
     "skipLibCheck": true,

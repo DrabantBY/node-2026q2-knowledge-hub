@@ -1,4 +1,4 @@
-import { Role } from '../../src/generated/prisma/enums';
+import { Role } from '@generated/enums';
 
 export const USERS_DATA = [
   { login: 'admin', password: 'admin', role: Role.ADMIN },
