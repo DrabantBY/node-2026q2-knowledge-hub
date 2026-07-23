@@ -1,7 +1,11 @@
 import type { PaginationResponse } from '@common/types';
 import { idNotFoundMessage } from '@common/utils';
 import { Prisma } from '@generated/client';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { PrismaService } from '@prisma';
 
 import type {
@@ -68,22 +72,33 @@ export class ArticlesService {
   }
 
   async insertOne({ tags, ...other }: CreateArticleDto): Promise<Article> {
-    const article = await this.prismaService.article.create({
-      data: {
-        ...other,
-        tags: tags
-          ? {
-              connectOrCreate: tags.map((name) => ({
-                where: { name },
-                create: { name },
-              })),
-            }
-          : undefined,
-      },
-      include: this.INCLUDE,
-    });
+    try {
+      const article = await this.prismaService.article.create({
+        data: {
+          ...other,
+          tags: tags
+            ? {
+                connectOrCreate: tags.map((name) => ({
+                  where: { name },
+                  create: { name },
+                })),
+              }
+            : undefined,
+        },
+        include: this.INCLUDE,
+      });
 
-    return this.mapToArticle(article);
+      return this.mapToArticle(article);
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2003'
+      )
+        throw new UnprocessableEntityException(
+          "AuthorId or categoryId reference doesn't exist",
+        );
+      else throw err;
+    }
   }
 
   async updateOne(

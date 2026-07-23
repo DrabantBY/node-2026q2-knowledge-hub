@@ -23,6 +23,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { ApiErrorResponse, ApiPaginationResponse } from '@swagger/decorators';
 import { ArticlesService } from './articles.service';
@@ -68,6 +69,7 @@ export class ArticlesController {
     summary: 'Add new article (editor can create own, admin can create any).',
   })
   @ApiCreatedResponse({ type: Article, description: 'Created' })
+  @ApiUnprocessableEntityResponse({ description: 'Unprocessable Entity' })
   @ApiErrorResponse({ withBodyError: true })
   insertOne(
     @Body(reqBodyValidatePipe()) dto: CreateArticleDto,
