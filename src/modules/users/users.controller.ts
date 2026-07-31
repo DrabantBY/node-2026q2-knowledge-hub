@@ -1,3 +1,4 @@
+import { User } from '@common/entities';
 import {
   reqBodyValidatePipe,
   reqQueryValidatePipe,
@@ -33,7 +34,6 @@ import {
 } from '@swagger/decorators';
 import { USER_SORT_KEY } from './const';
 import { CreateUserDto, UpdatePasswordDto, UserSearchParamsDto } from './dto';
-import { User } from './entities';
 import { UsersService } from './users.service';
 
 @ApiTags('Users Api')

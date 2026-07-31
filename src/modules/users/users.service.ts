@@ -1,21 +1,20 @@
-import type { PaginationResponse } from '@common/types';
+import { User } from '@common/entities';
+import type { PaginationResponse, PrismaUser } from '@common/types';
 import { idNotFoundMessage } from '@common/utils';
 import { Prisma } from '@generated/client';
 import { Role } from '@generated/enums';
 import {
-  ForbiddenException,
   Injectable,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@prisma';
+import bcrypt from 'bcrypt';
 import type {
   CreateUserDto,
   UpdatePasswordDto,
   UserSearchParamsDto,
 } from './dto';
-import { User } from './entities';
-
-type PrismaUser = Prisma.UserGetPayload<{ omit: { password: true } }>;
 
 @Injectable()
 export class UsersService {
@@ -65,10 +64,12 @@ export class UsersService {
     password,
     role = Role.VIEWER,
   }: CreateUserDto): Promise<User> {
+    const bcryptPassword = await bcrypt.hash(password, 10);
+
     const user = await this.prismaService.user.create({
       data: {
         login,
-        password,
+        password: bcryptPassword,
         role,
       },
       omit: this.OMIT,
@@ -87,12 +88,16 @@ export class UsersService {
 
     if (!user) throw new NotFoundException(idNotFoundMessage('User'));
 
-    if (user.password !== oldPassword)
+    const isPasswordsEqual = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isPasswordsEqual)
       throw new ForbiddenException(`Old password is wrong`);
+
+    const bcryptPassword = await bcrypt.hash(newPassword, 10);
 
     const newUser = await this.prismaService.user.update({
       where: { id },
-      data: { password: newPassword },
+      data: { password: bcryptPassword },
       omit: this.OMIT,
     });
 

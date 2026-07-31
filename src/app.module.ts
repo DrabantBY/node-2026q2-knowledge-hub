@@ -7,6 +7,7 @@ import {
 
 import {
   ArticlesModule,
+  AuthModule,
   CategoriesModule,
   CommentsModule,
   UsersModule,
@@ -20,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
     CategoriesModule,
     CommentsModule,
     PrismaModule,
+    AuthModule,
   ],
 })
 export class AppModule implements NestModule {

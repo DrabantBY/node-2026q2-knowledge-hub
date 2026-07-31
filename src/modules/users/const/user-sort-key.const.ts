@@ -1,4 +1,4 @@
-import type { User } from '../entities';
+import type { User } from '@common/entities';
 
 export const USER_SORT_KEY = {
   LOGIN: 'login',
