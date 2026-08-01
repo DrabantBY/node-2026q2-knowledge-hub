@@ -1,9 +1,11 @@
+import { Permission } from '@common/decorators';
 import {
   reqBodyValidatePipe,
   reqQueryValidatePipe,
   uuidValidatePipe,
 } from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
+import { Role } from '@generated/enums';
 import {
   Body,
   Controller,
@@ -30,10 +32,12 @@ import { CommentSearchParamsDto, CreateCommentDto } from './dto';
 import { Comment } from './entities';
 
 @ApiTags('Comments Api')
+@Permission([Role.ADMIN])
 @Controller('comment')
 export class CommentsController {
   constructor(private readonly commentService: CommentsService) {}
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get()
   @ApiOperation({
     summary:
@@ -50,6 +54,7 @@ export class CommentsController {
     return this.commentService.fetchList(searchParams);
   }
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get(':id')
   @ApiOperation({ summary: 'Get single comment by id.' })
   @ApiOkResponse({ type: Comment, description: 'Ok' })
@@ -63,6 +68,7 @@ export class CommentsController {
     return this.commentService.fetchOne(id);
   }
 
+  @Permission([Role.EDITOR])
   @Post()
   @ApiOperation({
     summary:

@@ -3,8 +3,8 @@ import { idNotFoundMessage } from '@common/utils';
 import { Prisma } from '@generated/client';
 import { Role } from '@generated/enums';
 import {
-  Injectable,
   ForbiddenException,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

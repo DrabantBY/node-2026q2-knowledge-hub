@@ -1,3 +1,4 @@
+import { BearerTokenGuard, PermissionGuard } from '@common/guards';
 import { LoggerMiddleware } from '@common/middlewares';
 import {
   type MiddlewareConsumer,
@@ -5,6 +6,7 @@ import {
   type NestModule,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import {
   ArticlesModule,
   AuthModule,
@@ -26,6 +28,16 @@ import { PrismaModule } from './prisma/prisma.module';
     CommentsModule,
     PrismaModule,
     AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: BearerTokenGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
+    },
   ],
 })
 export class AppModule implements NestModule {

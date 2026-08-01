@@ -1,9 +1,11 @@
+import { Permission } from '@common/decorators';
 import {
   reqBodyValidatePipe,
   reqQueryValidatePipe,
   uuidValidatePipe,
 } from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
+import { Role } from '@generated/enums';
 import {
   Body,
   Controller,
@@ -38,10 +40,12 @@ import {
 import { Category } from './entities';
 
 @ApiTags('Categories Api')
+@Permission([Role.ADMIN])
 @Controller('category')
 export class CategoriesController {
   constructor(private readonly categoryService: CategoriesService) {}
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get()
   @ApiOperation({ summary: 'Get all categories.' })
   @ApiQueryParams(CATEGORY_SORT_KEY)
@@ -55,6 +59,7 @@ export class CategoriesController {
     return this.categoryService.fetchAll(searchParams);
   }
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get(':id')
   @ApiOperation({ summary: 'Get single category by id.' })
   @ApiOkResponse({ type: Category, description: 'Ok' })

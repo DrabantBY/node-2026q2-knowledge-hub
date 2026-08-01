@@ -1,9 +1,11 @@
+import { Permission } from '@common/decorators';
 import {
   reqBodyValidatePipe,
   reqQueryValidatePipe,
   uuidValidatePipe,
 } from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
+import { Role } from '@generated/enums';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -37,11 +39,13 @@ import { User } from './entities';
 import { UsersService } from './users.service';
 
 @ApiTags('Users Api')
+@Permission([Role.ADMIN])
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('user')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get()
   @ApiOperation({ summary: 'Get all users.' })
   @ApiQueryParams(USER_SORT_KEY)
@@ -53,6 +57,7 @@ export class UsersController {
     return this.userService.fetchAll(searchParams);
   }
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get(':id')
   @ApiOperation({ summary: 'Get single user by id.' })
   @ApiOkResponse({ type: User, description: 'Ok' })

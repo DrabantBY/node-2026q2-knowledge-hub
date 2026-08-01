@@ -1,10 +1,11 @@
+import { PublicRoute } from '@common/decorators';
 import { reqBodyValidatePipe } from '@common/pipes';
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiOperation,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -14,6 +15,7 @@ import { AuthDto, TokenRefreshDto } from './dto';
 import { TokenAuth } from './entities';
 
 @ApiTags('Auth Api')
+@PublicRoute()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

@@ -52,6 +52,26 @@ export class AuthService {
     return this.createJwtToken(user.id, user.login, user.role);
   }
 
+  async refresh(refreshToken: string): Promise<TokenAuth> {
+    if (!refreshToken)
+      throw new UnauthorizedException('Refresh token is required');
+
+    try {
+      const { userId } = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+
+      const { id, login, role } =
+        await this.prismaService.user.findUniqueOrThrow({
+          where: { id: userId },
+        });
+
+      return this.createJwtToken(id, login, role);
+    } catch {
+      throw new ForbiddenException('Refresh token is invalid or expired');
+    }
+  }
+
   private async createJwtToken(
     userId: string,
     login: string,
@@ -75,25 +95,5 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
-  }
-
-  async refresh(refreshToken: string): Promise<TokenAuth> {
-    if (!refreshToken)
-      throw new UnauthorizedException('Refresh token is required');
-
-    try {
-      const { userId } = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      });
-
-      const { id, login, role } =
-        await this.prismaService.user.findUniqueOrThrow({
-          where: { id: userId },
-        });
-
-      return this.createJwtToken(id, login, role);
-    } catch {
-      throw new ForbiddenException('Refresh token is invalid or expired');
-    }
   }
 }

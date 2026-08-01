@@ -1,10 +1,11 @@
+import { Permission } from '@common/decorators';
 import {
   reqBodyValidatePipe,
   reqQueryValidatePipe,
   uuidValidatePipe,
 } from '@common/pipes';
-
 import type { PaginationResponse } from '@common/types';
+import { Role } from '@generated/enums';
 import {
   Body,
   Controller,
@@ -36,10 +37,12 @@ import {
 import { Article } from './entities';
 
 @ApiTags('Articles Api')
+@Permission([Role.ADMIN])
 @Controller('article')
 export class ArticlesController {
   constructor(private readonly articleService: ArticlesService) {}
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get()
   @ApiOperation({
     summary:
@@ -54,6 +57,7 @@ export class ArticlesController {
     return this.articleService.fetchAll(searchParams);
   }
 
+  @Permission([Role.VIEWER, Role.EDITOR])
   @Get(':id')
   @ApiOperation({ summary: 'Get single article by id.' })
   @ApiOkResponse({ type: Article, description: 'Ok' })
@@ -64,6 +68,7 @@ export class ArticlesController {
     return this.articleService.fetchOne(id);
   }
 
+  @Permission([Role.EDITOR])
   @Post()
   @ApiOperation({
     summary: 'Add new article (editor can create own, admin can create any).',
@@ -77,6 +82,7 @@ export class ArticlesController {
     return this.articleService.insertOne(dto);
   }
 
+  @Permission([Role.EDITOR])
   @Put(':id')
   @ApiOperation({
     summary:
