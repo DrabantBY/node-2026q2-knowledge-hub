@@ -1,24 +1,45 @@
-import { User } from '@common/entities';
 import { reqBodyValidatePipe } from '@common/pipes';
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ApiErrorResponse } from '@swagger/decorators';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
+import { TokenAuth } from './entities';
 
 @ApiTags('Auth Api')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOperation({ summary: 'Register a new user.' })
-  @ApiCreatedResponse({ type: User, description: 'Created' })
+  @Post('signup')
+  @ApiOperation({ summary: 'Sign up as a new user.' })
+  @ApiCreatedResponse({ description: 'Created' })
   @ApiErrorResponse({
     entity: 'User',
     withBodyError: true,
   })
-  @Post('signup')
-  signup(@Body(reqBodyValidatePipe()) dto: AuthDto): Promise<User> {
+  signup(@Body(reqBodyValidatePipe()) dto: AuthDto): Promise<void> {
     return this.authService.signup(dto);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Sign in as an existing user.' })
+  @ApiOkResponse({ type: TokenAuth, description: 'Authenticated' })
+  @ApiErrorResponse({
+    entity: 'User',
+    withBodyError: true,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+  })
+  signin(@Body(reqBodyValidatePipe()) dto: AuthDto): Promise<TokenAuth> {
+    return this.authService.signin(dto);
   }
 }

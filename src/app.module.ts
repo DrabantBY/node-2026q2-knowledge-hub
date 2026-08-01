@@ -4,7 +4,7 @@ import {
   Module,
   type NestModule,
 } from '@nestjs/common';
-
+import { ConfigModule } from '@nestjs/config';
 import {
   ArticlesModule,
   AuthModule,
@@ -16,6 +16,10 @@ import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     UsersModule,
     ArticlesModule,
     CategoriesModule,
