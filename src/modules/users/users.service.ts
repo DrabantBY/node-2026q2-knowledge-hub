@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@prisma';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import type {
   CreateUserDto,
   UpdatePasswordDto,
@@ -70,7 +70,8 @@ export class UsersService {
     password,
     role = Role.VIEWER,
   }: CreateUserDto): Promise<User> {
-    const CRYPT_SALT = this.configService.get<string>('CRYPT_SALT');
+    const CRYPT_SALT =
+      Number(this.configService.get<string>('CRYPT_SALT')) || 10;
     const bcryptPassword = await bcrypt.hash(password, CRYPT_SALT);
 
     const user = await this.prismaService.user.create({
@@ -100,7 +101,8 @@ export class UsersService {
     if (!isPasswordsEqual)
       throw new ForbiddenException('Old password is wrong');
 
-    const CRYPT_SALT = this.configService.get<string>('CRYPT_SALT');
+    const CRYPT_SALT =
+      Number(this.configService.get<string>('CRYPT_SALT')) || 10;
     const bcryptPassword = await bcrypt.hash(newPassword, CRYPT_SALT);
 
     const newUser = await this.prismaService.user.update({

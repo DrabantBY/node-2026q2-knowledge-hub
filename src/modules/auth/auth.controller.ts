@@ -6,10 +6,11 @@ import {
   ApiOperation,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ApiErrorResponse } from '@swagger/decorators';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
+import { AuthDto, TokenRefreshDto } from './dto';
 import { TokenAuth } from './entities';
 
 @ApiTags('Auth Api')
@@ -41,5 +42,19 @@ export class AuthController {
   })
   signin(@Body(reqBodyValidatePipe()) dto: AuthDto): Promise<TokenAuth> {
     return this.authService.signin(dto);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resfresh token' })
+  @ApiOkResponse({ type: TokenAuth, description: 'Refreshed' })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  refresh(@Body() { refreshToken }: TokenRefreshDto): Promise<TokenAuth> {
+    return this.authService.refresh(refreshToken);
   }
 }
