@@ -1,6 +1,6 @@
 import type { Role } from '@generated/enums';
 
-export interface JwtTokenData {
+export interface UserPayload {
   userId: string;
   login: string;
   role: Role;

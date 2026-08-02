@@ -22,6 +22,7 @@ type PrismaUser = Prisma.UserGetPayload<{ omit: { password: true } }>;
 @Injectable()
 export class UsersService {
   private OMIT = { password: true };
+
   constructor(
     private prismaService: PrismaService,
     private configService: ConfigService,

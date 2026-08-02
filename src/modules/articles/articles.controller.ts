@@ -1,6 +1,10 @@
-import { Permission } from '@common/decorators';
-import { reqBodyValidatePipe, reqQueryValidatePipe, uuidValidatePipe } from '@common/pipes';
-import type { PaginationResponse } from '@common/types';
+import { Permission, User } from '@common/decorators';
+import {
+  reqBodyValidatePipe,
+  reqQueryValidatePipe,
+  uuidValidatePipe,
+} from '@common/pipes';
+import type { PaginationResponse, UserPayload } from '@common/types';
 import { Role } from '@generated/enums';
 import {
   Body,
@@ -26,7 +30,11 @@ import {
 import { ApiErrorResponse, ApiPaginationResponse } from '@swagger/decorators';
 import { ArticlesService } from './articles.service';
 import { ApiArticleQueryParams } from './decorators';
-import { ArticleSearchParamsDto, CreateArticleDto, UpdateArticleDto } from './dto';
+import {
+  ArticleSearchParamsDto,
+  CreateArticleDto,
+  UpdateArticleDto,
+} from './dto';
 import { Article } from './entities';
 
 @ApiTags('Articles Api')
@@ -39,7 +47,8 @@ export class ArticlesController {
   @Permission([Role.VIEWER, Role.EDITOR])
   @Get()
   @ApiOperation({
-    summary: 'Get all articles. Supports filtering by status, categoryId, and tag.',
+    summary:
+      'Get all articles. Supports filtering by status, categoryId, and tag.',
   })
   @ApiArticleQueryParams()
   @ApiPaginationResponse(Article)
@@ -55,7 +64,9 @@ export class ArticlesController {
   @ApiOperation({ summary: 'Get single article by id.' })
   @ApiOkResponse({ type: Article, description: 'Ok' })
   @ApiErrorResponse({ entity: 'Article', withUuidError: true })
-  fetchOne(@Param('id', uuidValidatePipe('Article')) id: string): Promise<Article> {
+  fetchOne(
+    @Param('id', uuidValidatePipe('Article')) id: string,
+  ): Promise<Article> {
     return this.articleService.fetchOne(id);
   }
 
@@ -67,14 +78,18 @@ export class ArticlesController {
   @ApiCreatedResponse({ type: Article, description: 'Created' })
   @ApiUnprocessableEntityResponse({ description: 'Unprocessable Entity' })
   @ApiErrorResponse({ withBodyError: true })
-  insertOne(@Body(reqBodyValidatePipe()) dto: CreateArticleDto): Promise<Article> {
-    return this.articleService.insertOne(dto);
+  insertOne(
+    @Body(reqBodyValidatePipe()) dto: CreateArticleDto,
+    @User() user: UserPayload,
+  ): Promise<Article> {
+    return this.articleService.insertOne(dto, user);
   }
 
   @Permission([Role.EDITOR])
   @Put(':id')
   @ApiOperation({
-    summary: 'Update article by id (editor can update own, admin can update any).',
+    summary:
+      'Update article by id (editor can update own, admin can update any).',
   })
   @ApiOkResponse({ type: Article, description: 'Ok' })
   @ApiErrorResponse({
@@ -85,8 +100,9 @@ export class ArticlesController {
   updateOne(
     @Param('id', uuidValidatePipe('Article')) id: string,
     @Body(reqBodyValidatePipe()) dto: UpdateArticleDto,
+    @User() user: UserPayload,
   ): Promise<Article> {
-    return this.articleService.updateOne(id, dto);
+    return this.articleService.updateOne(id, dto, user);
   }
 
   @Delete(':id')
@@ -99,7 +115,9 @@ export class ArticlesController {
     withUuidError: true,
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', uuidValidatePipe('Article')) id: string): Promise<void> {
+  deleteOne(
+    @Param('id', uuidValidatePipe('Article')) id: string,
+  ): Promise<void> {
     return this.articleService.deleteOne(id);
   }
 }

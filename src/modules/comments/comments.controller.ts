@@ -1,6 +1,10 @@
-import { Permission } from '@common/decorators';
-import { reqBodyValidatePipe, reqQueryValidatePipe, uuidValidatePipe } from '@common/pipes';
-import type { PaginationResponse } from '@common/types';
+import { Permission, User } from '@common/decorators';
+import {
+  reqBodyValidatePipe,
+  reqQueryValidatePipe,
+  uuidValidatePipe,
+} from '@common/pipes';
+import type { PaginationResponse, UserPayload } from '@common/types';
 import { Role } from '@generated/enums';
 import {
   Body,
@@ -38,7 +42,8 @@ export class CommentsController {
   @Permission([Role.VIEWER, Role.EDITOR])
   @Get()
   @ApiOperation({
-    summary: 'Get all comments for a specific article. Requires articleId query parameter.',
+    summary:
+      'Get all comments for a specific article. Requires articleId query parameter.',
   })
   @ApiCommentQueryParams()
   @ApiPaginationResponse(Comment)
@@ -59,22 +64,28 @@ export class CommentsController {
     entity: 'Comment',
     withUuidError: true,
   })
-  fetchOne(@Param('id', uuidValidatePipe('Comment')) id: string): Promise<Comment> {
+  fetchOne(
+    @Param('id', uuidValidatePipe('Comment')) id: string,
+  ): Promise<Comment> {
     return this.commentService.fetchOne(id);
   }
 
   @Permission([Role.EDITOR])
   @Post()
   @ApiOperation({
-    summary: 'Add comment to article (editor can create own, admin can create any).',
+    summary:
+      'Add comment to article (editor can create own, admin can create any).',
   })
   @ApiCreatedResponse({ type: Comment, description: 'Created' })
   @ApiUnprocessableEntityResponse({ description: 'Unprocessable Entity' })
   @ApiErrorResponse({
     withBodyError: true,
   })
-  insertOne(@Body(reqBodyValidatePipe()) dto: CreateCommentDto): Promise<Comment> {
-    return this.commentService.insertOne(dto);
+  insertOne(
+    @Body(reqBodyValidatePipe()) dto: CreateCommentDto,
+    @User() user: UserPayload,
+  ): Promise<Comment> {
+    return this.commentService.insertOne(dto, user);
   }
 
   @Delete(':id')
@@ -87,7 +98,9 @@ export class CommentsController {
     withUuidError: true,
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(@Param('id', uuidValidatePipe('Comment')) id: string): Promise<void> {
+  deleteOne(
+    @Param('id', uuidValidatePipe('Comment')) id: string,
+  ): Promise<void> {
     return this.commentService.deleteOne(id);
   }
 }

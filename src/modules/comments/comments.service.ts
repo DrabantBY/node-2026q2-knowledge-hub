@@ -1,8 +1,10 @@
-import type { PaginationResponse } from '@common/types';
+import type { PaginationResponse, UserPayload } from '@common/types';
 import { idNotFoundMessage } from '@common/utils';
 import { Prisma } from '@generated/client';
+import { Role } from '@generated/enums';
 import type { CommentModel } from '@generated/models';
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -53,7 +55,12 @@ export class CommentsService {
     return this.mapToComment(comment);
   }
 
-  async insertOne(data: CreateCommentDto): Promise<Comment> {
+  async insertOne(
+    data: CreateCommentDto,
+    { userId, role }: UserPayload,
+  ): Promise<Comment> {
+    if (role === Role.EDITOR && userId !== data.authorId)
+      throw new ForbiddenException();
     try {
       const comment = await this.prismaService.comment.create({
         data,

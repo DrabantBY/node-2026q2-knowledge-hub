@@ -1,7 +1,9 @@
-import type { PaginationResponse } from '@common/types';
+import type { PaginationResponse, UserPayload } from '@common/types';
 import { idNotFoundMessage } from '@common/utils';
 import { Prisma } from '@generated/client';
+import { Role } from '@generated/enums';
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -71,7 +73,13 @@ export class ArticlesService {
     return this.mapToArticle(article);
   }
 
-  async insertOne({ tags, ...other }: CreateArticleDto): Promise<Article> {
+  async insertOne(
+    { tags, ...other }: CreateArticleDto,
+    { userId, role }: UserPayload,
+  ): Promise<Article> {
+    if (role === Role.EDITOR && userId !== other.authorId)
+      throw new ForbiddenException();
+
     try {
       const article = await this.prismaService.article.create({
         data: {
@@ -104,7 +112,11 @@ export class ArticlesService {
   async updateOne(
     id: string,
     { tags, ...other }: UpdateArticleDto,
+    { userId, role }: UserPayload,
   ): Promise<Article> {
+    if (role === Role.EDITOR && userId !== other.authorId)
+      throw new ForbiddenException();
+
     try {
       const article = await this.prismaService.article.update({
         where: { id },

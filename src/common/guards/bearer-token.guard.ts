@@ -1,15 +1,15 @@
-import { ConfigService } from '@nestjs/config';
 import {
   type CanActivate,
-  ExecutionContext,
+  type ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 import { PublicRoute } from '../decorators';
-import type { JwtTokenData } from '../types';
+import type { UserPayload } from '../types';
 
 @Injectable()
 export class BearerTokenGuard implements CanActivate {
@@ -33,7 +33,7 @@ export class BearerTokenGuard implements CanActivate {
       throw new UnauthorizedException('Access token is invalid or expired');
 
     try {
-      request['user'] = await this.jwtService.verifyAsync<JwtTokenData>(token, {
+      request['user'] = await this.jwtService.verifyAsync<UserPayload>(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
     } catch {

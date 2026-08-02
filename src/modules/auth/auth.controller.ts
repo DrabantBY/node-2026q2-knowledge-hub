@@ -1,6 +1,13 @@
 import { PublicRoute } from '@common/decorators';
 import { reqBodyValidatePipe } from '@common/pipes';
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
