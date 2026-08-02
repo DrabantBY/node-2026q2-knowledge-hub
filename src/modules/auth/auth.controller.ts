@@ -1,6 +1,6 @@
 import { PublicRoute } from '@common/decorators';
 import { reqBodyValidatePipe } from '@common/pipes';
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -9,6 +9,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiErrorResponse } from '@swagger/decorators';
 import { AuthService } from './auth.service';
 import { AuthDto, TokenRefreshDto } from './dto';
@@ -20,6 +21,7 @@ import { TokenAuth } from './entities';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(ThrottlerGuard)
   @Post('signup')
   @ApiOperation({ summary: 'Sign up as a new user.' })
   @ApiCreatedResponse({ description: 'Created' })
@@ -31,6 +33,7 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Sign in as an existing user.' })

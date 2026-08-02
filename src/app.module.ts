@@ -4,6 +4,7 @@ import { type MiddlewareConsumer, Module, type NestModule } from '@nestjs/common
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule } from '@nestjs/throttler';
 import {
   ArticlesModule,
   AuthModule,
@@ -20,6 +21,14 @@ import { PrismaModule } from './prisma/prisma.module';
       envFilePath: '.env',
     }),
     JwtModule.register({ global: true }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
     UsersModule,
     ArticlesModule,
     CategoriesModule,
