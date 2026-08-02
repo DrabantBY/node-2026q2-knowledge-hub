@@ -1,9 +1,5 @@
 import { Permission } from '@common/decorators';
-import {
-  reqBodyValidatePipe,
-  reqQueryValidatePipe,
-  uuidValidatePipe,
-} from '@common/pipes';
+import { reqBodyValidatePipe, reqQueryValidatePipe, uuidValidatePipe } from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
 import { Role } from '@generated/enums';
 import {
@@ -21,6 +17,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -28,11 +25,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  ApiErrorResponse,
-  ApiPaginationResponse,
-  ApiQueryParams,
-} from '@swagger/decorators';
+import { ApiErrorResponse, ApiPaginationResponse, ApiQueryParams } from '@swagger/decorators';
 import { USER_SORT_KEY } from './const';
 import { CreateUserDto, UpdatePasswordDto, UserSearchParamsDto } from './dto';
 import { User } from './entities';
@@ -41,6 +34,7 @@ import { UsersService } from './users.service';
 @ApiTags('Users Api')
 @Permission([Role.ADMIN])
 @UseInterceptors(ClassSerializerInterceptor)
+@ApiBearerAuth()
 @Controller('user')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
@@ -94,8 +88,7 @@ export class UsersController {
 
   @Delete(':id')
   @ApiOperation({
-    summary:
-      "Delete user by id. Set authorId to null on articles, delete user's comments.",
+    summary: "Delete user by id. Set authorId to null on articles, delete user's comments.",
   })
   @ApiNoContentResponse({ description: 'No Content' })
   @ApiErrorResponse({ entity: 'User', withUuidError: true })

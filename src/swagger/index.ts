@@ -4,10 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 export const setupSwagger = (app: INestApplication): void => {
   const config = new DocumentBuilder()
     .setTitle('Knowledge Hub')
-    .setDescription(
-      'Knowledge hub service for managing articles, categories, and comments',
-    )
+    .setDescription('Knowledge hub service for managing articles, categories, and comments')
     .setVersion('1.0.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

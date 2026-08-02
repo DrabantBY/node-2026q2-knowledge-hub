@@ -1,9 +1,5 @@
 import { Permission } from '@common/decorators';
-import {
-  reqBodyValidatePipe,
-  reqQueryValidatePipe,
-  uuidValidatePipe,
-} from '@common/pipes';
+import { reqBodyValidatePipe, reqQueryValidatePipe, uuidValidatePipe } from '@common/pipes';
 import type { PaginationResponse } from '@common/types';
 import { Role } from '@generated/enums';
 import {
@@ -19,6 +15,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -29,15 +26,12 @@ import {
 import { ApiErrorResponse, ApiPaginationResponse } from '@swagger/decorators';
 import { ArticlesService } from './articles.service';
 import { ApiArticleQueryParams } from './decorators';
-import {
-  ArticleSearchParamsDto,
-  CreateArticleDto,
-  UpdateArticleDto,
-} from './dto';
+import { ArticleSearchParamsDto, CreateArticleDto, UpdateArticleDto } from './dto';
 import { Article } from './entities';
 
 @ApiTags('Articles Api')
 @Permission([Role.ADMIN])
+@ApiBearerAuth()
 @Controller('article')
 export class ArticlesController {
   constructor(private readonly articleService: ArticlesService) {}
@@ -45,8 +39,7 @@ export class ArticlesController {
   @Permission([Role.VIEWER, Role.EDITOR])
   @Get()
   @ApiOperation({
-    summary:
-      'Get all articles. Supports filtering by status, categoryId, and tag.',
+    summary: 'Get all articles. Supports filtering by status, categoryId, and tag.',
   })
   @ApiArticleQueryParams()
   @ApiPaginationResponse(Article)
@@ -62,9 +55,7 @@ export class ArticlesController {
   @ApiOperation({ summary: 'Get single article by id.' })
   @ApiOkResponse({ type: Article, description: 'Ok' })
   @ApiErrorResponse({ entity: 'Article', withUuidError: true })
-  fetchOne(
-    @Param('id', uuidValidatePipe('Article')) id: string,
-  ): Promise<Article> {
+  fetchOne(@Param('id', uuidValidatePipe('Article')) id: string): Promise<Article> {
     return this.articleService.fetchOne(id);
   }
 
@@ -76,17 +67,14 @@ export class ArticlesController {
   @ApiCreatedResponse({ type: Article, description: 'Created' })
   @ApiUnprocessableEntityResponse({ description: 'Unprocessable Entity' })
   @ApiErrorResponse({ withBodyError: true })
-  insertOne(
-    @Body(reqBodyValidatePipe()) dto: CreateArticleDto,
-  ): Promise<Article> {
+  insertOne(@Body(reqBodyValidatePipe()) dto: CreateArticleDto): Promise<Article> {
     return this.articleService.insertOne(dto);
   }
 
   @Permission([Role.EDITOR])
   @Put(':id')
   @ApiOperation({
-    summary:
-      'Update article by id (editor can update own, admin can update any).',
+    summary: 'Update article by id (editor can update own, admin can update any).',
   })
   @ApiOkResponse({ type: Article, description: 'Ok' })
   @ApiErrorResponse({
@@ -111,9 +99,7 @@ export class ArticlesController {
     withUuidError: true,
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteOne(
-    @Param('id', uuidValidatePipe('Article')) id: string,
-  ): Promise<void> {
+  deleteOne(@Param('id', uuidValidatePipe('Article')) id: string): Promise<void> {
     return this.articleService.deleteOne(id);
   }
 }
