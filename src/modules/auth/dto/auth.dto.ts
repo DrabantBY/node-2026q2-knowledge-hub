@@ -4,7 +4,7 @@ import { IsDefined, IsString } from 'class-validator';
 export class AuthDto {
   @ApiProperty({
     type: String,
-    example: 'TestUser',
+    example: 'editor',
   })
   @IsString()
   @IsDefined()
@@ -13,7 +13,7 @@ export class AuthDto {
   @ApiProperty({
     type: String,
     format: 'password',
-    example: 'TestPassword',
+    example: 'editor',
   })
   @IsString()
   @IsDefined()
