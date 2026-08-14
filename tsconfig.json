@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
@@ -16,7 +17,7 @@
       "@comments/*": ["src/modules/comments/*"],
       "@common/*": ["src/common/*"],
       "@swagger/*": ["src/swagger/*"],
-      "@users/*": ["src/modules/users/*"],
+      "@users/*": ["src/modules/users/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
@@ -24,6 +25,6 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-  },
+    "noFallthroughCasesInSwitch": false
+  }
 }
